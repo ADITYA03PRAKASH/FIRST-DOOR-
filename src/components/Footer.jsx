@@ -32,7 +32,7 @@ const Footer = () => {
           {/* Logo & Description Column */}
           <div className="space-y-6">
             <Link to="/">
-              <LogoWhite className="h-10 md:h-12 w-auto" />
+              <LogoWhite className="h-14 md:h-18 w-auto" />
             </Link>
             <p className="text-xs md:text-sm text-gray-400 leading-relaxed pr-4">
               First Door HR Solutions is a premier corporate advisory delivering modern recruitment, organization design, compliance audits, and payroll processing globally.

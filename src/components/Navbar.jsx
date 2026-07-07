@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -52,9 +52,9 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
             {isScrolled ? (
-              <Logo className="h-10 md:h-12 w-auto transition-transform duration-300" />
+              <Logo className="h-14 md:h-18 w-auto transition-transform duration-300" />
             ) : (
-              <LogoWhite className="h-10 md:h-12 w-auto transition-transform duration-300" />
+              <LogoWhite className="h-14 md:h-18 w-auto transition-transform duration-300" />
             )}
           </Link>
 
