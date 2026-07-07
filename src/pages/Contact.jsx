@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { MapPin, Mail, Phone, Clock, Map } from 'lucide-react';
+import { Mail, Phone, Clock, Map } from 'lucide-react';
 import ContactForm from '../components/ContactForm';
 
 const Contact = () => {
@@ -63,18 +63,7 @@ const Contact = () => {
                 </div>
 
                 <div className="relative z-10 space-y-6 pt-4 border-t border-white/5">
-                  {/* Address */}
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gold/15 text-gold flex items-center justify-center flex-shrink-0 mt-1">
-                      <MapPin className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-body font-bold text-xs uppercase tracking-wider text-white">Office Address</h4>
-                      <p className="text-gray-300 font-body text-xs md:text-sm mt-1 leading-relaxed">
-                        702, Premium Trade Towers, Business District,<br />Noida, Uttar Pradesh - 201301
-                      </p>
-                    </div>
-                  </div>
+
 
                   {/* Email */}
                   <div className="flex items-start gap-4">
