@@ -61,8 +61,8 @@ const Footer = () => {
             <ul className="space-y-3.5 text-xs md:text-sm">
               {footerLinks.company.map((link, idx) => (
                 <li key={idx}>
-                  <Link to={link.path} className="hover:text-gold flex items-center gap-1.5 transition-colors duration-200">
-                    <span className="text-gold font-bold">â€º</span> {link.label}
+                  <Link to={link.path} className="hover:text-gold transition-colors duration-200">
+                    {link.label}
                   </Link>
                 </li>
               ))}
@@ -77,8 +77,8 @@ const Footer = () => {
             <ul className="space-y-3.5 text-xs md:text-sm">
               {footerLinks.services.map((link, idx) => (
                 <li key={idx}>
-                  <a href={link.path} className="hover:text-gold flex items-center gap-1.5 transition-colors duration-200">
-                    <span className="text-gold font-bold">â€º</span> {link.label}
+                  <a href={link.path} className="hover:text-gold transition-colors duration-200">
+                    {link.label}
                   </a>
                 </li>
               ))}
