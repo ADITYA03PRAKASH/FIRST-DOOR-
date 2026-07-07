@@ -1,21 +1,17 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Navigation, Autoplay } from 'swiper/modules';
+
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 
-// Swiper CSS imports
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
+
 
 // Custom Components
 import Hero from '../components/Hero';
 import SectionTitle from '../components/SectionTitle';
 import ServiceCard from '../components/ServiceCard';
 import IndustryCard from '../components/IndustryCard';
-import TestimonialCard from '../components/TestimonialCard';
+
 
 import Button from '../components/Button';
 import CTA from '../components/CTA';
@@ -23,7 +19,7 @@ import CTA from '../components/CTA';
 // Data Arrays
 import { services } from '../data/services';
 import { industries } from '../data/industries';
-import { testimonials } from '../data/testimonials';
+
 
 const whyChooseUsData = [
   { title: "Experienced HR Experts", desc: "Our advisors carry senior leadership backgrounds in global consulting networks, delivering enterprise-level intelligence." },
@@ -191,41 +187,7 @@ const Home = () => {
 
 
 
-      {/* Testimonials Slider Section */}
-      <section className="py-24 bg-brandBgLight">
-        <div className="container mx-auto px-6">
-          <SectionTitle 
-            tagline="SUCCESS STORIES"
-            title="What Our Clients Say"
-            center
-          />
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="testimonial-swiper-wrapper"
-          >
-            <Swiper
-              modules={[Pagination, Navigation, Autoplay]}
-              spaceBetween={30}
-              slidesPerView={1}
-              loop={true}
-              autoplay={{ delay: 5000, disableOnInteraction: false }}
-              pagination={{ clickable: true }}
-              navigation={true}
-              className="py-12"
-            >
-              {testimonials.map((t) => (
-                <SwiperSlide key={t.id}>
-                  <TestimonialCard testimonial={t} />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </motion.div>
-        </div>
-      </section>
 
       {/* Final CTA Section */}
       <CTA />
