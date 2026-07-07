@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,30 +31,7 @@ const blogPosts = [
   }
 ];
 
-const caseStudies = [
-  {
-    id: 1,
-    tag: "CASE STUDY 01: TECH SCALING",
-    title: "Onboarding 60 Developers in 90 Days for Veloce Tech",
-    challenge: "Veloce Tech, a fintech scale-up, needed to expand their core development team quickly while maintaining a strict quality bar and legal compliance.",
-    approach: "First Door configured a custom RPO pipeline, utilizing pre-vetted technical pools and running automated code audits. We handled compliance setups and onboardings.",
-    results: [
-      { label: "Hiring Speed", val: "+45% faster" },
-      { label: "Retention Rate", val: "96%" }
-    ]
-  },
-  {
-    id: 2,
-    tag: "CASE STUDY 02: COMPLIANCE RECOVERY",
-    title: "Resolving Labor Audit Penalties for MedPro Manufacturer",
-    challenge: "MedPro faced severe administrative exposure due to discrepancies in shift contracts, payroll tax calculations, and union agreements.",
-    approach: "Our compliance advisors audited all records, rewrote the company policy handbook, and configured a compliant automated payroll calculator.",
-    results: [
-      { label: "Tax Discrepancies", val: "0%" },
-      { label: "Audit Outcome", val: "Fully Cleared" }
-    ]
-  }
-];
+
 
 const Resources = () => {
   const [downloadEmail, setDownloadEmail] = useState('');
@@ -177,54 +154,7 @@ const Resources = () => {
         </div>
       </section>
 
-      {/* Case Studies Section */}
-      <section className="py-24 bg-brandBgLight" id="case-studies">
-        <div className="container mx-auto px-6">
-          <SectionTitle 
-            tagline="PROVEN RESULTS"
-            title="Corporate Case Studies"
-            center
-          />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {caseStudies.map((study) => (
-              <motion.div
-                key={study.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-premium hover:border-gold/20 transition-all duration-300 flex flex-col justify-between h-full"
-              >
-                <div className="space-y-4">
-                  <span className="text-gold font-body font-bold text-xs uppercase tracking-wider block">
-                    {study.tag}
-                  </span>
-                  <h3 className="font-headings font-bold text-xl md:text-2xl text-navy">
-                    {study.title}
-                  </h3>
-                  <p className="text-gray-500 font-body text-sm leading-relaxed">
-                    <strong>The Challenge:</strong> {study.challenge}
-                  </p>
-                  <p className="text-gray-500 font-body text-sm leading-relaxed">
-                    <strong>Our Approach:</strong> {study.approach}
-                  </p>
-                </div>
-
-                {/* Results Row */}
-                <div className="border-t border-gray-100 pt-5 mt-6 grid grid-cols-2 gap-4">
-                  {study.results.map((res, rIdx) => (
-                    <div key={rIdx}>
-                      <span className="text-gray-400 font-body text-[10px] uppercase tracking-wider block">{res.label}</span>
-                      <span className="text-navy font-headings font-extrabold text-xl md:text-2xl mt-1 block">{res.val}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* FAQs Section */}
       <section className="py-24 bg-white" id="faqs">
