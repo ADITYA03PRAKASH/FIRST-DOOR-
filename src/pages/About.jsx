@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Scale, Scissors, Award, ShieldCheck, Database, FileSpreadsheet } from 'lucide-react';
-import { FaLinkedin, FaXTwitter } from 'react-icons/fa6';
 import SectionTitle from '../components/SectionTitle';
 
 const valuesData = [
@@ -12,32 +11,7 @@ const valuesData = [
   { icon: Award, title: "Premium Excellence", desc: "We hold ourselves to the highest standards. We search extensively to find candidates that meet your specific professional expectations." }
 ];
 
-const teamData = [
-  {
-    name: "Ananya Sharma",
-    role: "CEO & Managing Director",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
-    bio: "Ananya brings over 20 years of experience advising Fortune 500 corporations on workforce transformations and C-suite placements.",
-    linkedin: "https://linkedin.com/",
-    twitter: "https://twitter.com/"
-  },
-  {
-    name: "Marcus Sterling",
-    role: "Partner, Executive Search",
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=400&q=80",
-    bio: "Marcus specializes in C-level search campaigns, placing over 300 executives across technical and banking sectors.",
-    linkedin: "https://linkedin.com/",
-    twitter: "https://twitter.com/"
-  },
-  {
-    name: "Clara Dubois",
-    role: "Head of Compliance & Payroll",
-    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=400&q=80",
-    bio: "Clara directs our labor law auditing teams, ensuring error-free statutory structures for our corporate clients.",
-    linkedin: "https://linkedin.com/",
-    twitter: "https://twitter.com/"
-  }
-];
+
 
 const methodologyData = [
   { id: "01", title: "Discovery & Diagnostic", desc: "We initiate our partnership with a deep diagnostic review of your company's operational hierarchy, current employment liability, skill gaps, and scaling timeline goals." },
@@ -253,52 +227,7 @@ const About = () => {
         </div>
       </section>
 
-      {/* Leadership Section */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-6">
-          <SectionTitle 
-            tagline="EXECUTIVE BOARD"
-            title="Our Leadership Team"
-            center
-          />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
-            {teamData.map((leader, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
-                className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full"
-              >
-                <img 
-                  src={leader.image} 
-                  alt={leader.name} 
-                  className="w-full h-80 object-cover"
-                  loading="lazy"
-                />
-                <div className="p-6 flex-grow flex flex-col justify-between space-y-4">
-                  <div>
-                    <h3 className="font-headings font-bold text-navy text-xl mb-1">{leader.name}</h3>
-                    <p className="text-gold font-monospace text-[10px] tracking-wider uppercase font-semibold mb-3">{leader.role}</p>
-                    <p className="text-gray-500 font-body text-xs md:text-sm leading-relaxed">{leader.bio}</p>
-                  </div>
-                  
-                  <div className="flex items-center gap-3 pt-2">
-                    <a href={leader.linkedin} target="_blank" rel="noopener noreferrer" className="text-navy hover:text-gold transition-colors" aria-label="LinkedIn profile Link">
-                      <FaLinkedin className="h-5 w-5" />
-                    </a>
-                    <a href={leader.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gold transition-colors" aria-label="Twitter profile Link">
-                      <FaXTwitter className="h-5 w-5" />
-                    </a>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Trust Indicators Section */}
       <section className="py-24 bg-navy text-white relative">
