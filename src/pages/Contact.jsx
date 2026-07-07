@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, Clock, Map } from 'lucide-react';
+import { Mail, Phone, Clock } from 'lucide-react';
 import ContactForm from '../components/ContactForm';
 
 const Contact = () => {
@@ -109,29 +109,7 @@ const Contact = () => {
             </div>
           </div>
 
-          {/* Map Section */}
-          <div className="mt-20 pt-8" data-aos="fade-up">
-            <span className="text-gold font-body font-bold text-xs uppercase tracking-[3px] mb-2 block font-semibold">LOCATION</span>
-            <h3 className="font-headings font-bold text-2xl text-navy mb-6">Our Geographic Coordinates</h3>
-            
-            <div className="w-full h-96 rounded-xl overflow-hidden border border-gray-200 shadow-sm relative flex flex-col justify-center items-center bg-[#EBF1F6]">
-              <div className="text-center p-8 max-w-xl">
-                <Map className="h-12 w-12 text-gold mx-auto mb-4" />
-                <h4 className="font-headings font-bold text-navy text-lg mb-2">Interactive Map Area</h4>
-                <p className="text-gray-500 font-body text-xs leading-relaxed mb-6">
-                  First Door HR Solutions Noida HQ - Noida. Near Premium Business Trade Center. Map placeholder with premium custom styling.
-                </p>
-                <a 
-                  href="https://maps.google.com/?q=Noida+Premium+Trade+Towers" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-block border border-gold hover:bg-gold hover:text-white text-gold font-body font-bold text-[10px] uppercase tracking-wider px-5 py-3 rounded-[4px] transition-colors"
-                >
-                  Open in Google Maps
-                </a>
-              </div>
-            </div>
-          </div>
+
         </div>
       </section>
     </>
