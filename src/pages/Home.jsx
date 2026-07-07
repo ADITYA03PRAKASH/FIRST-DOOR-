@@ -1,33 +1,77 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-
 import { CheckCircle2, ArrowRight } from 'lucide-react';
-
-
 
 // Custom Components
 import Hero from '../components/Hero';
 import SectionTitle from '../components/SectionTitle';
-import ServiceCard from '../components/ServiceCard';
 import IndustryCard from '../components/IndustryCard';
-
-
 import Button from '../components/Button';
 import CTA from '../components/CTA';
 
 // Data Arrays
-import { services } from '../data/services';
 import { industries } from '../data/industries';
 
-
 const whyChooseUsData = [
-  { title: "Experienced HR Experts", desc: "Our advisors carry senior leadership backgrounds in global consulting networks, delivering enterprise-level intelligence." },
-  { title: "Customized HR Solutions", desc: "We reject template-based work, building policy handbooks and agreements tailored to your operations." },
-  { title: "Fast Recruitment Pipeline", desc: "Reduce your time-to-hire by 40% utilizing our pre-vetted database of top 5% passive candidates." },
-  { title: "Compliance Specialists", desc: "Minimizing statutory liabilities through rigorous labor audit protocols and payroll verification cycles." },
-  { title: "Business Growth Focus", desc: "We align talent strategies directly with your long-term commercial goals, scaling structures on demand." },
-  { title: "Trusted Partnership", desc: "Get dedicated account managers checking in with quarterly efficiency reviews and post-onboarding audits." }
+  { 
+    title: "Senior Leadership Expertise", 
+    desc: "Our advisors carry senior leadership backgrounds in global consulting networks, delivering enterprise-level intelligence." 
+  },
+  { 
+    title: "Practical & Compliant", 
+    desc: "Every recommendation is grounded in what actually works and holds up in statutory audits." 
+  },
+  { 
+    title: "Built to Scale", 
+    desc: "Systems designed to grow with your business, from your first key hires to full enterprise operations." 
+  }
+];
+
+const coreDisciplines = [
+  {
+    num: "01",
+    title: "Talent Acquisition & Recruitment",
+    desc: "Executive search, permanent & RPO hiring, and specialized onboarding — across white-collar and blue-collar roles, every function and level."
+  },
+  {
+    num: "02",
+    title: "HR Consulting & Advisory",
+    desc: "Fractional HR Director support, organizational design, and policy & employee handbook creation."
+  },
+  {
+    num: "03",
+    title: "Payroll & Statutory Compliance",
+    desc: "End-to-end payroll outsourcing plus PF, ESI, Bonus, Gratuity, Minimum Wages & Shop and Establishment compliance, filings, and labor code advisory."
+  },
+  {
+    num: "04",
+    title: "People, Development & HR Operations",
+    desc: "Day-to-day HR operations, performance management, employee engagement, and complete HR outsourcing as your dedicated partner."
+  }
+];
+
+const processSteps = [
+  { 
+    num: "1", 
+    title: "Discovery & Audit", 
+    desc: "We learn your business and assess where HR is working — and where it isn't." 
+  },
+  { 
+    num: "2", 
+    title: "Strategy Design", 
+    desc: "We build a roadmap tailored to your size, industry, and goals." 
+  },
+  { 
+    num: "3", 
+    title: "Implementation", 
+    desc: "We roll out systems, policies, and support with hands-on guidance." 
+  },
+  { 
+    num: "4", 
+    title: "Continuous Optimization", 
+    desc: "We keep refining as you grow, so HR never becomes a bottleneck." 
+  }
 ];
 
 const Home = () => {
@@ -73,13 +117,18 @@ const Home = () => {
             <div className="space-y-6">
               <SectionTitle 
                 tagline="ABOUT FIRST DOOR"
-                title="Bridging Talent with Business Strategy"
+                title="Your Partner Behind Every Open Door"
               />
               <p className="text-gray-500 font-body text-base leading-relaxed">
-                First Door HR Solutions is a premier corporate advisory that delivers next-generation Recruitment, Talent Acquisition, Talent Management, Payroll & Compliance Solutions, and Organizational Consulting. We help enterprise organizations and high-growth businesses design resilient workforces built for scaling.
+                First Door HR Solutions is a premier corporate advisory delivering next-generation recruitment, talent acquisition, talent management, payroll & compliance, and organizational consulting. We help enterprise and high-growth businesses build resilient workforces built for scaling.
               </p>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 mb-6">
+              {/* Premium Brochure Quote Callout */}
+              <div className="border-l-4 border-gold pl-6 py-3 bg-brandBgLight italic text-navy font-body text-sm font-semibold rounded-r-[4px]">
+                "Enterprise-level intelligence, built by advisors who've led HR from the inside."
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 mb-6">
                 <div>
                   <h4 className="font-headings font-bold text-navy text-lg mb-2">Our Mission</h4>
                   <p className="text-gray-400 font-body text-xs leading-relaxed">To empower organizations by delivering strategic HR methodologies that match the best human potential with matching corporate purposes.</p>
@@ -114,7 +163,7 @@ const Home = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-3 gap-8"
           >
             {whyChooseUsData.map((item, idx) => (
               <motion.div
@@ -141,23 +190,88 @@ const Home = () => {
       <section className="py-24 bg-white">
         <div className="container mx-auto px-6">
           <SectionTitle 
-            tagline="CORE CAPABILITIES"
-            title="Our HR Solutions & Services"
+            tagline="OUR SERVICES"
+            title="Four Doors. One Partner."
             center
           />
+          <p className="text-center text-gray-500 font-body text-sm max-w-xl mx-auto mb-12">
+            A full-service HR consultancy built around four core disciplines — engage one, or all four.
+          </p>
 
-          {/* Show first 6 services on homepage preview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {services.slice(0, 6).map((service, idx) => (
-              <ServiceCard key={service.id} service={service} index={idx} />
+          {/* 4 Core Disciplines Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            {coreDisciplines.map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: idx * 0.05 }}
+                whileHover={{ y: -6 }}
+                className="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-premium hover:border-gold/25 transition-all duration-300 flex items-start gap-6 group"
+              >
+                <span className="text-3xl font-body font-extrabold text-gold leading-none">
+                  {item.num}
+                </span>
+                <div className="space-y-3">
+                  <h3 className="font-headings font-bold text-xl text-navy group-hover:text-gold transition-colors duration-300">
+                    {item.title}
+                  </h3>
+                  <p className="text-gray-500 font-body text-xs md:text-sm leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              </motion.div>
             ))}
           </div>
 
           <div className="text-center">
             <Button to="/services" variant="outline-gold">
-              Explore All Services
+              Explore All Portfolios
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* Process Section (How We Open Every Door) */}
+      <section className="py-24 bg-white border-t border-gray-100 overflow-hidden">
+        <div className="container mx-auto px-6">
+          <SectionTitle 
+            tagline="OUR PROCESS"
+            title="How We Open Every Door"
+            center
+          />
+          <p className="text-center text-gray-500 font-body text-sm max-w-xl mx-auto mb-12">
+            A clear, four-step path from first conversation to lasting change.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative mt-12 mb-8">
+            {/* Connecting line on desktop */}
+            <div className="absolute top-[28px] left-[10%] right-[10%] h-[2px] bg-gray-200 hidden lg:block z-0" />
+
+            {processSteps.map((step, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: idx * 0.05 }}
+                className="relative z-10 text-center space-y-4 px-4"
+              >
+                {/* Step Circle */}
+                <div className="w-14 h-14 rounded-full bg-navy text-gold border-4 border-white shadow-md flex items-center justify-center mx-auto text-lg font-bold">
+                  {step.num}
+                </div>
+                {/* Title */}
+                <h4 className="font-headings font-bold text-navy text-lg">{step.title}</h4>
+                {/* Description */}
+                <p className="text-gray-500 font-body text-xs md:text-sm leading-relaxed">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+          <p className="text-center font-body text-xs md:text-sm text-gray-400 italic mt-6">
+            Whether you need one project or an ongoing partner, we meet you at your door.
+          </p>
         </div>
       </section>
 
@@ -165,14 +279,17 @@ const Home = () => {
       <section className="py-24 bg-brandBgLight">
         <div className="container mx-auto px-6">
           <SectionTitle 
-            tagline="SECTOR SPECIALIZATIONS"
-            title="Industries We Serve"
+            tagline="INDUSTRIES & CLIENTS"
+            title="Built for Where You're Headed"
             center
           />
+          <p className="text-center text-gray-500 font-body text-sm max-w-xl mx-auto mb-12">
+            We tailor every engagement to the realities of your industry and stage of growth.
+          </p>
 
-          {/* Show first 4 industries on homepage preview */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {industries.slice(0, 4).map((industry, idx) => (
+          {/* Show 6 brochure-aligned industries */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {industries.map((industry, idx) => (
               <IndustryCard key={industry.id} industry={industry} index={idx} />
             ))}
           </div>
@@ -185,10 +302,6 @@ const Home = () => {
         </div>
       </section>
 
-
-
-
-
       {/* Final CTA Section */}
       <CTA />
     </>
@@ -196,4 +309,3 @@ const Home = () => {
 };
 
 export default Home;
-
