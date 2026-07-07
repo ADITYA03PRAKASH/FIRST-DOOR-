@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -16,8 +16,7 @@ import SectionTitle from '../components/SectionTitle';
 import ServiceCard from '../components/ServiceCard';
 import IndustryCard from '../components/IndustryCard';
 import TestimonialCard from '../components/TestimonialCard';
-import Counter from '../components/Counter';
-import Timeline from '../components/Timeline';
+
 import Button from '../components/Button';
 import CTA from '../components/CTA';
 
@@ -190,32 +189,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Process Section */}
-      <section className="py-24 bg-white overflow-hidden">
-        <div className="container mx-auto px-6">
-          <SectionTitle 
-            tagline="METHODOLOGY"
-            title="Our HR Consultation Process"
-            center
-          />
-          <Timeline />
-        </div>
-      </section>
 
-      {/* Stats Counter Section */}
-      <section className="py-20 bg-navy text-white relative">
-        {/* Subtle decorative background circles */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(198,146,46,0.06)_0%,transparent_50%)] z-0" />
-        
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-            <Counter target={500} suffix="+" label="Clients Served" />
-            <Counter target={10000} suffix="+" label="Candidates Placed" />
-            <Counter target={98} suffix="%" label="Client Satisfaction" />
-            <Counter target={15} suffix="+" label="Years Experience" />
-          </div>
-        </div>
-      </section>
 
       {/* Testimonials Slider Section */}
       <section className="py-24 bg-brandBgLight">
