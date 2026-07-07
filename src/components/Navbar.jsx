@@ -77,7 +77,7 @@ const Navbar = () => {
             
             {/* CTA Button */}
             <Button to="/contact" variant="gold" className="ml-4 py-2.5 px-6">
-              Book Consultation
+              Book a Consultation
             </Button>
           </div>
 
@@ -125,7 +125,7 @@ const Navbar = () => {
             {/* Mobile Drawer Bottom CTA */}
             <div className="mt-8">
               <Button to="/contact" variant="gold" className="w-full py-4">
-                Book Consultation
+                Book a Consultation
               </Button>
               <p className="text-[10px] text-white/40 text-center font-body mt-4">
                 &copy; 2026 First Door HR Solutions.

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -41,7 +41,7 @@ const categories = [
   { id: 'talent-acquisition', label: 'Talent Acquisition', desc: 'Sourcing, headhunting, and staffing solutions.' },
   { id: 'hr-consulting', label: 'HR Consulting', desc: 'Workforce design, handbooks, and strategy.' },
   { id: 'compliance-payroll', label: 'Compliance & Payroll', desc: 'Provident funds, audits, and salary processing.' },
-  { id: 'people-development', label: 'People & Development', desc: 'Appraisals, workshops, and coaching cycles.' }
+  { id: 'people-development', label: 'People & Development and HR Operation Solutions', desc: 'Appraisals, workshops, operations, and coaching cycles.' }
 ];
 
 const Services = () => {
@@ -131,7 +131,7 @@ const Services = () => {
                   Let our senior consultants run a statutory payroll and policy risk audit on your company.
                 </p>
                 <Button to="/contact?service=hr-audit" variant="gold" className="w-full text-center py-3">
-                  Inquire Now
+                  Enquire Now
                 </Button>
               </div>
             </div>

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import Button from './Button';
@@ -180,7 +180,7 @@ const ContactForm = () => {
                 Sending Inquiry...
               </>
             ) : (
-              "Book Consultation"
+              "Book a Consultation"
             )}
           </Button>
         </div>

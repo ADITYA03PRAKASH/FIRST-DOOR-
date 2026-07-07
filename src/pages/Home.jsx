@@ -76,7 +76,7 @@ const Home = () => {
                 title="Bridging Talent with Business Strategy"
               />
               <p className="text-gray-500 font-body text-base leading-relaxed">
-                First Door HR Solutions is a premier corporate advisory that delivers next-generation talent management, organizational consulting, and compliance solutions. We help enterprise organizations and high-growth businesses design resilient workforces built for scaling.
+                First Door HR Solutions is a premier corporate advisory that delivers next-generation Recruitment, Talent Acquisition, Talent Management, Payroll & Compliance Solutions, and Organizational Consulting. We help enterprise organizations and high-growth businesses design resilient workforces built for scaling.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 mb-6">
@@ -105,7 +105,7 @@ const Home = () => {
         <div className="container mx-auto px-6">
           <SectionTitle 
             tagline="OUR DISTINCTIONS"
-            title="Why Corporate Clients Choose Us"
+            title="Why Should Corporate Clients Choose Us"
             center
           />
 

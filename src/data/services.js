@@ -12,8 +12,7 @@ export const services = [
     ],
     features: [
       "Active board-level networking and direct recruitment pipelines.",
-      "Full background, credential, and integrity verification audits.",
-      "90-day comprehensive transition consulting post-onboarding."
+      "Full background, credential, and integrity verification audits."
     ],
     ctaLink: "/contact?service=executive-search"
   },
@@ -31,7 +30,8 @@ export const services = [
     features: [
       "Custom assessment engines designed for role-specific skills.",
       "Structured panel evaluations and candidate reports.",
-      "90-day candidate placement guarantees."
+      "90-day candidate placement guarantees (In case of genuine resignation)",
+      "Supporting all hiring needs across all industries, all departments (Frontline, Central Functions, Support Functions, Backend, Production, Supply Chain and Warehousing), and all levels of employees (White Collar & Blue Collar)."
     ],
     ctaLink: "/contact?service=permanent-recruitment"
   },
@@ -61,15 +61,32 @@ export const services = [
     description: "Complete outsourcing of your recruitment lifecycle. Our dedicated recruitment teams sit inside your corporate structure to accelerate hiring.",
     benefits: [
       "Drastically reduces cost-per-hire by up to 35%.",
-      "Standardizes interview stages across global locations.",
       "Provides complete reporting dashboard visibility."
     ],
     features: [
       "Dedicated talent acquisition advisors aligned with your brand.",
-      "SLA-backed metrics monitoring time-to-hire and sourcing quality.",
-      "ATS integration and applicant flow optimizations."
+      "SLA-backed metrics monitoring time-to-hire and sourcing quality."
     ],
     ctaLink: "/contact?service=rpo"
+  },
+  {
+    id: "specialized-onboarding",
+    category: "talent-acquisition",
+    title: "Talent Acquisition & Specialized Onboarding",
+    icon: "UserCheck",
+    description: "Seamless talent acquisition paired with structured onboarding to ensure smooth transitions for new hires.",
+    benefits: [
+      "Ensures highly motivated and engaged new hires from day one.",
+      "Reduces early attrition rates during critical first 90 days.",
+      "Saves internal HR hours by outsourcing coordination tasks."
+    ],
+    features: [
+      "Induction & Orientation",
+      "Pre-joining Follow-ups",
+      "Issuing Offer Letters & Appointment Letters on behalf of the organization",
+      "Coordinating with internal teams to ensure a smooth talent acquisition process"
+    ],
+    ctaLink: "/contact?service=specialized-onboarding"
   },
   {
     id: "fractional-hr",
@@ -79,11 +96,9 @@ export const services = [
     description: "Get access to senior HR leadership without full-time costs. A dedicated HR director manages your strategic planning and audits part-time.",
     benefits: [
       "Provides expert corporate advisory at a fraction of director salaries.",
-      "Introduces proven scaling models built from global consultancies.",
       "Audits and repairs weak manager relationships."
     ],
     features: [
-      "Weekly strategic check-ins and board presentation consulting.",
       "Annual organization design audits and budget planning.",
       "Crisis management and executive dispute consulting."
     ],
@@ -102,10 +117,27 @@ export const services = [
     ],
     features: [
       "Custom handbooks tailored for local labor legislation.",
-      "Intellectual property protection and data security clauses.",
       "Periodic reviews to align with updated workplace safety rules."
     ],
     ctaLink: "/contact?service=handbook-design"
+  },
+  {
+    id: "complete-hr-outsourcing",
+    category: "hr-consulting",
+    title: "Complete HR Outsourcing",
+    icon: "Users",
+    description: "We manage the complete HR Department as a strategic partner to the organization.",
+    benefits: [
+      "Provides an entire functional HR department without internal overheads.",
+      "Ensures consistent policy deployment and compliant lifecycle operations.",
+      "Enables corporate leadership to focus exclusively on business growth."
+    ],
+    features: [
+      "End-to-end lifecycle employee management and documentation.",
+      "Statutory compliance, tax audits, and monthly payroll processing.",
+      "Dedicated on-site or virtual HR managers for daily operations."
+    ],
+    ctaLink: "/contact?service=complete-hr-outsourcing"
   },
   {
     id: "payroll",
@@ -120,7 +152,6 @@ export const services = [
     ],
     features: [
       "Automated tax withholding and statutory form filings.",
-      "Self-service portals for employee payslips and tax declarations.",
       "Integrated expense claims and reimbursement tracking."
     ],
     ctaLink: "/contact?service=payroll"
@@ -132,14 +163,15 @@ export const services = [
     icon: "ShieldAlert",
     description: "Auditing employee records, insurance policies, and tax registrations to ensure compliance with local labor legislation.",
     benefits: [
-      "Detects and fixes regulatory errors before government inspections.",
       "Protects executive directors from compliance liabilities.",
       "Validates fair pay scales and benefits allocations."
     ],
     features: [
       "Comprehensive audits of statutory files and employment agreements.",
-      "Expert representation during audits by state regulators.",
-      "Compliance check reports and risk rating calculations."
+      "Compliance check reports and risk rating calculations.",
+      "Managing PF, ESI, Bonus, Minimum Wages, Compliance Registers, Gratuity, Shop & Establishment Rules, Factory Act Rules.",
+      "Filing Monthly, Quarterly, Half-Yearly & Yearly Compliance Returns/Challans.",
+      "Advising organizations regarding new Labour Codes as required."
     ],
     ctaLink: "/contact?service=compliance"
   },
@@ -155,29 +187,10 @@ export const services = [
       "Identifies training gaps in core functional teams."
     ],
     features: [
-      "Custom appraisal schedules (quarterly/annual cycles).",
-      "Goal setting guides utilizing OKR frameworks.",
+      "Custom appraisal schedules (Quarterly / Half-Yearly / Annual cycles).",
       "Manager coaching on constructive evaluation feedbacks."
     ],
     ctaLink: "/contact?service=performance"
-  },
-  {
-    id: "leadership-development",
-    category: "people-development",
-    title: "Leadership & Executive Development",
-    icon: "GraduationCap",
-    description: "Executive mentoring, workshop cohorts, and management training programs designed to prepare leaders for business-critical changes.",
-    benefits: [
-      "Prepares mid-level leaders for senior executive scaling transitions.",
-      "Boosts management retention rates by providing clear growth paths.",
-      "Improves corporate agility and change management."
-    ],
-    features: [
-      "Coaching cohorts focused on communications and crisis strategies.",
-      "360-degree leadership reviews and career roadmaps.",
-      "Interactive strategy simulation workshops."
-    ],
-    ctaLink: "/contact?service=leadership"
   },
   {
     id: "employee-engagement",
@@ -191,28 +204,30 @@ export const services = [
       "Reduces attrition in business-critical departments."
     ],
     features: [
-      "Anonymous climate surveys with heatmaps and analytics.",
       "Custom wellness plans and flexible benefits consultations.",
       "Culture workshops to reinforce corporate values."
     ],
     ctaLink: "/contact?service=engagement"
   },
   {
-    id: "hr-technology",
-    category: "compliance-payroll",
-    title: "HR Technology & HRIS Integrations",
-    icon: "Laptop",
-    description: "Consulting and integrations for HRIS databases, applicant tracking systems (ATS), and digital check-in platforms.",
+    id: "hr-operations",
+    category: "people-development",
+    title: "HR Operations",
+    icon: "UserGear",
+    description: "Comprehensive end-to-end management of day-to-day HR administration, query resolutions, employee lifecycle tracking, and exit clearance processes.",
     benefits: [
-      "Centralizes all employee directories into a single source of truth.",
-      "Automates repetitive tasks to save administrative hours.",
-      "Improves applicant experience with smooth job portals."
+      "Ensures seamless daily HR administration without operational gaps.",
+      "Improves employee satisfaction through fast query resolution.",
+      "Guarantees compliance and clean records for exit management."
     ],
     features: [
-      "Custom ATS integrations matching corporate hiring pipelines.",
-      "Secure cloud HRIS database migrations.",
-      "Manager training on HR analytics tool dashboards."
+      "Managing daily HR operations from issuing letters to coordinating email IDs, uniforms and ID cards.",
+      "Resolving employee queries.",
+      "KRA & KPI preparation and management.",
+      "Manpower optimization.",
+      "Employee retention management.",
+      "Complete employee exit management including resignation, notice period, handover, exit interview and Full & Final Settlement."
     ],
-    ctaLink: "/contact?service=hris"
+    ctaLink: "/contact?service=hr-operations"
   }
 ];

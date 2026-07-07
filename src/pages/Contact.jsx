@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { MapPin, Mail, Phone, Clock, Map } from 'lucide-react';
@@ -83,8 +83,8 @@ const Contact = () => {
                     </div>
                     <div>
                       <h4 className="font-body font-bold text-xs uppercase tracking-wider text-white">Inquiry Email</h4>
-                      <a href="mailto:inquiry@firstdoorhr.com" className="text-gray-300 hover:text-gold font-body text-xs md:text-sm mt-1 block transition-colors">
-                        inquiry@firstdoorhr.com
+                      <a href="mailto:letsconnect@firstdoorhr.com" className="text-gray-300 hover:text-gold font-body text-xs md:text-sm mt-1 block transition-colors">
+                        letsconnect@firstdoorhr.com
                       </a>
                     </div>
                   </div>
@@ -96,8 +96,8 @@ const Contact = () => {
                     </div>
                     <div>
                       <h4 className="font-body font-bold text-xs uppercase tracking-wider text-white">Direct Phone</h4>
-                      <a href="tel:+911204567890" className="text-gray-300 hover:text-gold font-body text-xs md:text-sm mt-1 block transition-colors">
-                        +91-120-4567890
+                      <a href="tel:+919911692679" className="text-gray-300 hover:text-gold font-body text-xs md:text-sm mt-1 block transition-colors">
+                        9911692679
                       </a>
                     </div>
                   </div>
@@ -112,7 +112,7 @@ const Contact = () => {
                       <p className="text-gray-300 font-body text-xs md:text-sm mt-1 leading-relaxed">
                         Monday to Friday: 9:00 AM to 6:00 PM (IST)
                       </p>
-                      <span className="text-gold font-body text-[10px] uppercase font-bold block mt-1">Closed on National Holidays</span>
+                      <span className="text-gold font-body text-[10px] uppercase font-bold block mt-1">We are off duties on national holidays.</span>
                     </div>
                   </div>
                 </div>

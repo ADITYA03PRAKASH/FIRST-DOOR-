@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import Button from './Button';
 
@@ -62,7 +62,7 @@ const Hero = () => {
             className="flex flex-wrap gap-4"
           >
             <Button to="/contact" variant="gold">
-              Book Consultation
+              Book a Consultation
             </Button>
             <Button to="/services" variant="outline-white">
               Explore Services
