@@ -39,8 +39,8 @@ const Navbar = () => {
   }, [pathname]);
 
   const navStyles = isScrolled 
-    ? "bg-white/95 backdrop-blur-md border-b border-navy/5 shadow-premium py-3" 
-    : "bg-transparent py-5";
+    ? "bg-white/95 backdrop-blur-md border-b border-navy/5 shadow-premium py-2" 
+    : "bg-transparent py-4";
 
   const linkColor = isScrolled ? "text-navy hover:text-gold" : "text-white/90 hover:text-gold";
 
@@ -52,9 +52,9 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
             {isScrolled ? (
-              <Logo className="h-14 md:h-18 w-auto transition-transform duration-300" />
+              <Logo className="h-20 md:h-26 w-auto transition-transform duration-300" />
             ) : (
-              <LogoWhite className="h-14 md:h-18 w-auto transition-transform duration-300" />
+              <LogoWhite className="h-20 md:h-26 w-auto transition-transform duration-300" />
             )}
           </Link>
 
