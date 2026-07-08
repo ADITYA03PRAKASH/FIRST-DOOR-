@@ -9,22 +9,46 @@ const ContactForm = () => {
     company: '',
     email: '',
     phone: '',
-    teamSize: '',
+    service: '',
+    date: '',
+    time: '',
     message: ''
   });
 
   const [isLoading, setIsLoading] = useState(false);
   const [validated, setValidated] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   // Auto-fill form details if URL parameter exists
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const service = params.get('service') || params.get('sector');
-    if (service) {
+    const serviceParam = params.get('service') || params.get('sector');
+    if (serviceParam) {
+      // Map URL param to one of the selectable services if possible
+      const serviceMap = {
+        'executive-search': 'Executive Hiring',
+        'permanent-hiring': 'Talent Acquisition',
+        'contract-staffing': 'Talent Acquisition',
+        'rpo': 'Talent Acquisition',
+        'specialized-onboarding': 'Talent Acquisition',
+        'fractional-hr': 'HR Consulting',
+        'policy-development': 'HR Consulting',
+        'complete-hr-outsourcing': 'HR Consulting',
+        'payroll': 'Payroll Management',
+        'compliance': 'Statutory Compliance',
+        'performance-management': 'Performance Management',
+        'employee-engagement': 'Employee Engagement',
+        'hr-operations': 'Workforce Planning'
+      };
+      
+      const mappedService = serviceMap[serviceParam] || '';
+      
       setFormData(prev => ({
         ...prev,
-        message: `Interested in details regarding: ${service.toUpperCase().replace('-', ' ')}.\nPlease provide more information on how we can collaborate.`
+        service: mappedService,
+        message: `Interested in details regarding: ${serviceParam.toUpperCase().replace(/-/g, ' ')}.`
       }));
     }
   }, []);
@@ -34,9 +58,11 @@ const ContactForm = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
+    setErrorMessage('');
+    setSuccessMessage('');
 
     if (form.checkValidity() === false) {
       e.stopPropagation();
@@ -47,16 +73,32 @@ const ContactForm = () => {
     setIsLoading(true);
     setValidated(false);
 
-    // Simulate Network Request
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/book', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit consultation booking.');
+      }
+
       setIsLoading(false);
+      setSuccessMessage('Booking Request Submitted Successfully!');
       setShowToast(true);
       setFormData({
         name: '',
         company: '',
         email: '',
         phone: '',
-        teamSize: '',
+        service: '',
+        date: '',
+        time: '',
         message: ''
       });
 
@@ -64,12 +106,29 @@ const ContactForm = () => {
       setTimeout(() => {
         setShowToast(false);
       }, 4000);
-    }, 1500);
+
+    } catch (err) {
+      console.error('Error submitting booking:', err);
+      setErrorMessage(err.message || 'SMTP transmission error or server is offline. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="relative">
       <form onSubmit={handleSubmit} noValidate className={`space-y-6 ${validated ? 'was-validated' : ''}`}>
+        {/* Error / Success Alerts */}
+        {errorMessage && (
+          <div className="bg-red-50 text-red-700 p-4 rounded-[4px] text-xs font-semibold border-l-4 border-red-500">
+            {errorMessage}
+          </div>
+        )}
+        {successMessage && (
+          <div className="bg-green-50 text-green-700 p-4 rounded-[4px] text-xs font-semibold border-l-4 border-green-500">
+            {successMessage}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Full Name */}
           <div>
@@ -88,12 +147,11 @@ const ContactForm = () => {
 
           {/* Company Name */}
           <div>
-            <label htmlFor="company" className="block text-xs font-bold uppercase tracking-wider text-navy mb-2">Company Name</label>
+            <label htmlFor="company" className="block text-xs font-bold uppercase tracking-wider text-navy mb-2">Company Name (Optional)</label>
             <input 
               type="text"
               name="company"
               id="company"
-              required
               value={formData.company}
               onChange={handleChange}
               placeholder="E.g., Veloce Tech Pvt Ltd"
@@ -130,38 +188,73 @@ const ContactForm = () => {
               className="w-full bg-brandBgLight border border-gray-200 rounded-[4px] py-3.5 px-4 font-body text-sm text-navy placeholder:text-gray-400 focus:outline-none focus:border-gold focus:bg-white focus:ring-4 focus:ring-gold/10 transition-all duration-200"
             />
           </div>
-        </div>
 
-        {/* Headcount size */}
-        <div>
-          <label htmlFor="teamSize" className="block text-xs font-bold uppercase tracking-wider text-navy mb-2">Workforce Size</label>
-          <select 
-            name="teamSize"
-            id="teamSize"
-            required
-            value={formData.teamSize}
-            onChange={handleChange}
-            className="w-full bg-brandBgLight border border-gray-200 rounded-[4px] py-3.5 px-4 font-body text-sm text-navy focus:outline-none focus:border-gold focus:bg-white focus:ring-4 focus:ring-gold/10 transition-all duration-200"
-          >
-            <option value="" disabled>Select headcount range</option>
-            <option value="under-10">Under 10 Employees</option>
-            <option value="10-50">10 to 50 Employees</option>
-            <option value="50-200">50 to 200 Employees</option>
-            <option value="over-200">More than 200 Employees</option>
-          </select>
+          {/* Service Selected */}
+          <div className="md:col-span-2">
+            <label htmlFor="service" className="block text-xs font-bold uppercase tracking-wider text-navy mb-2">Service Needed</label>
+            <select 
+              name="service"
+              id="service"
+              required
+              value={formData.service}
+              onChange={handleChange}
+              className="w-full bg-brandBgLight border border-gray-200 rounded-[4px] py-3.5 px-4 font-body text-sm text-navy focus:outline-none focus:border-gold focus:bg-white focus:ring-4 focus:ring-gold/10 transition-all duration-200"
+            >
+              <option value="" disabled>Select the HR Service</option>
+              <option value="Talent Acquisition">Talent Acquisition</option>
+              <option value="Executive Hiring">Executive Hiring</option>
+              <option value="Payroll Management">Payroll Management</option>
+              <option value="Statutory Compliance">Statutory Compliance</option>
+              <option value="HR Consulting">HR Consulting</option>
+              <option value="Performance Management">Performance Management</option>
+              <option value="Employee Engagement">Employee Engagement</option>
+              <option value="Workforce Planning">Workforce Planning</option>
+            </select>
+          </div>
+
+          {/* Preferred Date */}
+          <div>
+            <label htmlFor="date" className="block text-xs font-bold uppercase tracking-wider text-navy mb-2">Preferred Date</label>
+            <input 
+              type="date"
+              name="date"
+              id="date"
+              required
+              value={formData.date}
+              onChange={handleChange}
+              className="w-full bg-brandBgLight border border-gray-200 rounded-[4px] py-3.5 px-4 font-body text-sm text-navy focus:outline-none focus:border-gold focus:bg-white focus:ring-4 focus:ring-gold/10 transition-all duration-200"
+            />
+          </div>
+
+          {/* Preferred Time */}
+          <div>
+            <label htmlFor="time" className="block text-xs font-bold uppercase tracking-wider text-navy mb-2">Preferred Time Slot</label>
+            <select 
+              name="time"
+              id="time"
+              required
+              value={formData.time}
+              onChange={handleChange}
+              className="w-full bg-brandBgLight border border-gray-200 rounded-[4px] py-3.5 px-4 font-body text-sm text-navy focus:outline-none focus:border-gold focus:bg-white focus:ring-4 focus:ring-gold/10 transition-all duration-200"
+            >
+              <option value="" disabled>Select a preferred slot</option>
+              <option value="Morning (9:00 AM - 12:00 PM)">Morning (9:00 AM - 12:00 PM)</option>
+              <option value="Midday (12:00 PM - 3:00 PM)">Midday (12:00 PM - 3:00 PM)</option>
+              <option value="Afternoon (3:00 PM - 6:00 PM)">Afternoon (3:00 PM - 6:00 PM)</option>
+            </select>
+          </div>
         </div>
 
         {/* Message */}
         <div>
-          <label htmlFor="message" className="block text-xs font-bold uppercase tracking-wider text-navy mb-2">Workforce Challenges or Mandate Details</label>
+          <label htmlFor="message" className="block text-xs font-bold uppercase tracking-wider text-navy mb-2">Workforce Challenges or Requirements (Optional)</label>
           <textarea 
             name="message"
             id="message"
-            rows="5"
-            required
+            rows="4"
             value={formData.message}
             onChange={handleChange}
-            placeholder="Please detail your hiring volumes, required start dates, compliance bottlenecks, or training requirements."
+            placeholder="Please detail your hiring volumes, start dates, compliance bottlenecks, or general requirements."
             className="w-full bg-brandBgLight border border-gray-200 rounded-[4px] py-3.5 px-4 font-body text-sm text-navy placeholder:text-gray-400 focus:outline-none focus:border-gold focus:bg-white focus:ring-4 focus:ring-gold/10 transition-all duration-200 resize-y"
           />
         </div>
