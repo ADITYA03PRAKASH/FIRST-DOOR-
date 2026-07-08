@@ -61,18 +61,18 @@ const About = () => {
               transition={{ duration: 0.6 }}
               className="space-y-6"
             >
-              <span className="text-gold font-body font-bold text-xs uppercase tracking-[3px] mb-2 block">OUR BEGINNINGS</span>
+              <span className="text-gold font-body font-bold text-xs uppercase tracking-[3px] mb-2 block">OUR MISSION & PHILOSOPHY</span>
               <h2 className="text-navy font-headings font-extrabold text-3xl md:text-4xl leading-tight">
-                A Legacy of Executive Placement and HR Precision
+                Building the Future of Work, One Talent at a Time
               </h2>
               <p className="text-gray-500 font-body text-base leading-relaxed">
-                Founded over 15 years ago, First Door HR Solutions was established to replace transactional recruitment with strategic human capital partnerships. We realized that corporate growth succeeds or fails based on one factor: placing the right leaders and builders in the right structures.
+                First Door HR Solutions is a modern HR consulting and talent solutions company dedicated to helping organizations build high-performing teams and efficient people practices. We partner with businesses of all sizes to simplify human resource management, enabling them to focus on innovation, growth, and long-term success.
               </p>
               <p className="text-gray-400 font-body text-sm leading-relaxed">
-                Starting as a boutique executive search firm, we expanded our capabilities into full-scale HR advisory, compliance audits, payroll services, and corporate leadership development. Today, we stand as a trusted advisory partner to over 500 organizations, helping them navigate complex labor legislations and build agile teams.
+                Our expertise spans talent acquisition, executive hiring, payroll management, statutory compliance, HR consulting, performance management, employee engagement, and workforce planning. Every solution we deliver is tailored to the unique goals, culture, and growth stage of our clients.
               </p>
               <p className="text-gray-400 font-body text-sm leading-relaxed">
-                Our consultants bring high-level expertise from top tier global consulting firms, combining modern talent technology with direct, personal business audits.
+                We believe that people are the foundation of every successful business. That's why we go beyond filling positions—we help organizations identify, attract, develop, and retain the talent that drives sustainable business outcomes. By combining industry knowledge, technology-driven processes, and a client-first approach, we deliver HR solutions that are efficient, scalable, and future-ready.
               </p>
             </motion.div>
 
@@ -113,7 +113,7 @@ const About = () => {
               </div>
               <h3 className="font-headings font-bold text-2xl text-white mb-4">Our Mission</h3>
               <p className="text-gray-300 font-body text-sm leading-relaxed">
-                Our mission is to translate complex human potential into measurable commercial success. We do this by developing bespoke HR infrastructures, compliant payroll architectures, and executive hiring strategies that align perfectly with our clients' cultural and financial targets.
+                At First Door HR Solutions, our mission is to become a trusted strategic HR partner for businesses across industries by providing reliable, transparent, and value-driven services. We support your organizational journey with professionalism, integrity, and excellence.
               </p>
             </motion.div>
 
@@ -130,7 +130,7 @@ const About = () => {
               </div>
               <h3 className="font-headings font-bold text-2xl text-white mb-4">Our Vision</h3>
               <p className="text-gray-300 font-body text-sm leading-relaxed">
-                Our vision is to remain the gold standard in premium HR advisories, continuously evolving our tech-enabled systems to deliver unmatched speed-to-hire, perfect statutory compliance audits, and strategic talent development modules for high-growth enterprises worldwide.
+                We strive to build organizations that thrive. Whether you're a startup building your first team, a growing company expanding operations, or an established enterprise optimizing your workforce, we provide efficient, scalable, and future-ready HR solutions.
               </p>
             </motion.div>
           </div>

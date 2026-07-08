@@ -120,22 +120,25 @@ const Home = () => {
                 title="Your Partner Behind Every Open Door"
               />
               <p className="text-gray-500 font-body text-base leading-relaxed">
-                First Door HR Solutions is a premier corporate advisory delivering next-generation recruitment, talent acquisition, talent management, payroll & compliance, and organizational consulting. We help enterprise and high-growth businesses build resilient workforces built for scaling.
+                First Door HR Solutions is a modern HR consulting and talent solutions company dedicated to helping organizations build high-performing teams and efficient people practices. We partner with businesses of all sizes to simplify human resource management, enabling them to focus on innovation, growth, and long-term success.
+              </p>
+              <p className="text-gray-500 font-body text-sm leading-relaxed">
+                We believe that people are the foundation of every successful business. That's why we go beyond filling positions—we help organizations identify, attract, develop, and retain the talent that drives sustainable business outcomes. By combining industry knowledge, technology-driven processes, and a client-first approach, we deliver HR solutions that are efficient, scalable, and future-ready.
               </p>
               
               {/* Premium Brochure Quote Callout */}
               <div className="border-l-4 border-gold pl-6 py-3 bg-brandBgLight italic text-navy font-body text-sm font-semibold rounded-r-[4px]">
-                "Enterprise-level intelligence, built by advisors who've led HR from the inside."
+                "Together, we don't just build teams—we build organizations that thrive."
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 mb-6">
                 <div>
                   <h4 className="font-headings font-bold text-navy text-lg mb-2">Our Mission</h4>
-                  <p className="text-gray-400 font-body text-xs leading-relaxed">To empower organizations by delivering strategic HR methodologies that match the best human potential with matching corporate purposes.</p>
+                  <p className="text-gray-400 font-body text-xs leading-relaxed">To become a trusted strategic HR partner for businesses across industries by providing reliable, transparent, and value-driven services.</p>
                 </div>
                 <div>
-                  <h4 className="font-headings font-bold text-navy text-lg mb-2">Our Vision</h4>
-                  <p className="text-gray-400 font-body text-xs leading-relaxed">To be the global benchmark in HR consulting, recognized for integrity, custom-fit frameworks, and executive-level search precision.</p>
+                  <h4 className="font-headings font-bold text-navy text-lg mb-2">Our Commitment</h4>
+                  <p className="text-gray-400 font-body text-xs leading-relaxed">Whether you're a startup building your first team, a growing company, or an established enterprise, we support your journey with excellence.</p>
                 </div>
               </div>
 

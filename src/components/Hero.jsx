@@ -38,10 +38,10 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: "easeOut", delay: 0.1 }}
-            className="text-white font-headings font-extrabold text-4xl md:text-5xl lg:text-6.5xl leading-tight mb-6"
-            style={{ fontSize: "clamp(2.5rem, 5vw, 4.25rem)" }}
+            className="text-white font-headings font-extrabold text-4xl md:text-5xl lg:text-6xl leading-tight mb-6"
+            style={{ fontSize: "clamp(2rem, 4.5vw, 3.75rem)" }}
           >
-            Where <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-gold-light">Potential</span> Finds <span className="text-gold">Purpose</span>
+            Building the <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-gold-light">Future of Work</span>, One Talent at a Time
           </motion.h1>
 
           {/* Subheading */}
@@ -51,7 +51,7 @@ const Hero = () => {
             transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
             className="text-gray-300 font-body font-light text-base md:text-lg lg:text-xl leading-relaxed mb-10 max-w-2xl"
           >
-            Helping businesses build stronger teams through Recruitment, HR Consulting, Compliance, Payroll, Talent Development, and Workforce Solutions.
+            First Door HR Solutions is a modern HR consulting and talent solutions company dedicated to helping organizations build high-performing teams and efficient people practices.
           </motion.p>
 
           {/* Buttons */}
