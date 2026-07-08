@@ -4,6 +4,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
+import multer from 'multer';
 
 // Load environment variables
 dotenv.config();
@@ -13,6 +15,37 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Multer configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files are allowed!'), false);
+    }
+  }
+});
+
+// Metadata config file path
+const metadataPath = path.join(uploadsDir, 'metadata.json');
 
 // Enable CORS for development
 app.use(cors({
@@ -194,6 +227,73 @@ app.post('/api/book', async (req, res) => {
     // 8. Log error only on the server
     console.error('Error handling booking request:', error);
     return res.status(500).json({ error: 'Failed to process consultation request. SMTP transmission error.' });
+  }
+});
+
+// Get active brochure URL & metadata
+app.get('/api/brochure/url', (req, res) => {
+  try {
+    if (!fs.existsSync(metadataPath)) {
+      return res.status(200).json({ url: '', filename: '' });
+    }
+    const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+    return res.status(200).json({
+      url: '/api/brochure/download',
+      filename: metadata.originalName || 'First_Door_HR_Corporate_Profile.pdf'
+    });
+  } catch (error) {
+    console.error('Error fetching brochure URL:', error);
+    return res.status(500).json({ error: 'Server error fetching brochure metadata.' });
+  }
+});
+
+// Download active brochure
+app.get('/api/brochure/download', (req, res) => {
+  try {
+    if (!fs.existsSync(metadataPath)) {
+      return res.status(404).json({ error: 'No brochure has been uploaded yet.' });
+    }
+    const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+    const filePath = path.resolve(metadata.filePath);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'The brochure file could not be found on the server.' });
+    }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${metadata.originalName || 'brochure.pdf'}"`);
+    return res.sendFile(filePath);
+  } catch (error) {
+    console.error('Error downloading brochure:', error);
+    return res.status(500).json({ error: 'Failed to download brochure file.' });
+  }
+});
+
+// Admin upload brochure
+app.post('/api/admin/upload-brochure', upload.single('brochure'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No PDF file was uploaded.' });
+    }
+
+    const metadata = {
+      originalName: req.file.originalname,
+      filename: req.file.filename,
+      filePath: req.file.path,
+      uploadDate: new Date().toISOString()
+    };
+
+    fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), 'utf8');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Brochure uploaded successfully.',
+      url: '/api/brochure/download',
+      filename: req.file.originalname
+    });
+  } catch (error) {
+    console.error('Error uploading brochure:', error);
+    return res.status(500).json({ error: error.message || 'Failed to upload brochure file.' });
   }
 });
 

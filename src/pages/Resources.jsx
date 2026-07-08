@@ -1,47 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileDown, Lock, Globe } from 'lucide-react';
+import { FileDown, Lock, Globe, AlertCircle } from 'lucide-react';
 import FAQ from '../components/FAQ';
 import Button from '../components/Button';
 import SectionTitle from '../components/SectionTitle';
-
-
-
-
 
 const Resources = () => {
   const [downloadEmail, setDownloadEmail] = useState('');
   const [downloading, setDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [brochureInfo, setBrochureInfo] = useState({ url: '', filename: '' });
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleDownload = (e) => {
+  // Fetch the active brochure url details from the backend
+  useEffect(() => {
+    const fetchBrochureDetails = async () => {
+      try {
+        const res = await fetch('/api/brochure/url');
+        if (res.ok) {
+          const data = await res.json();
+          setBrochureInfo(data);
+        }
+      } catch (err) {
+        console.error('Error fetching brochure URL:', err);
+      }
+    };
+    fetchBrochureDetails();
+  }, []);
+
+  const handleDownload = async (e) => {
     e.preventDefault();
     if (!downloadEmail) return;
+    setErrorMsg('');
+    setDownloadSuccess(false);
+
+    // Verify if brochure has been uploaded
+    if (!brochureInfo.url) {
+      setErrorMsg('No company brochure has been uploaded by the admin yet.');
+      return;
+    }
 
     setDownloading(true);
 
-    // Simulate PDF generation
-    setTimeout(() => {
-      setDownloading(false);
-      setDownloadSuccess(true);
-
-      // Virtual PDF file trigger
+    try {
+      // Trigger native download using the URL from API
       const element = document.createElement('a');
-      element.setAttribute('href', 'data:application/pdf;base64,JVBERi0xLjQKJdPr6gogMSAwIG9iagogIDw8IC9UeXBlIC9DYXRhbG9nCiAgICAgL1BhZ2VzIDIgMCBSCiAgPj4KZW5kb2JqCjIgMCBvYmoKICA8PCAvVHlwZSAvUGFnZXMKICAgICAvS2lkcyBbIDMgMCBSIF0KICAgICAvQ291bnQgMQogID4+CmVuZG9iagozIDAgb2JqCiAgPDwgL1R5cGUgL1BhZ2UKICAgICAvUGFyZW50IDIgMCBSCiAgICAgL1Jlc291cmNlcyA8PAogICAgICAgL0ZvbnQgPDwKICAgICAgICAgL0YxIDQgMCBSCiAgICAgICA+PgogICAgID4+CiAgICAgL01lZGlhQm94IFsgMCAwIDU5NSA4NDIgXQogICAgIC9Db250ZW50cyA1IDAgUgogID4+CmVuZG9iago0IDAgb2JqCiAgPDwgL1R5cGUgL0ZvbnQKICAgICAvU3VidHlwZSAvVHlwZTEKICAgICAvQmFzZUZvbnQgL0hlbHZldGljYQogID4+CmVuZG9iagogIDw8IC9MZW5ndGggNDQgPj4Kc3RyZWFtCkJUIC9GMSAyNCBUZiA3MCA3MDAgVGQgKEZpcnN0IERvb3IgSFIgQ29ycG9yYXRlIFByb2ZpbGUpIFR6IEVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAwNzEgMDAwMDAgbiAKMDAwMDAwMDEzMCAwMDAwMCBuIAowMDAwMDAwMjQ1IDAwMDAwIG4gCjAwMDAwMDAzMTggMDAwMDAgbiAKdHJhaWxlcgogIDw8IC9TaXplIDYKICAgICAvUm9vdCAxIDAgUgogID4+CnN0YXJ0eHJlZgozODEKJSVFT0YK');
-      element.setAttribute('download', 'First_Door_HR_Corporate_Profile.pdf');
+      element.setAttribute('href', brochureInfo.url);
+      element.setAttribute('download', brochureInfo.filename || 'First_Door_HR_Corporate_Profile.pdf');
       element.style.display = 'none';
       document.body.appendChild(element);
       element.click();
       document.body.removeChild(element);
 
-      // Reset states
-      setEmail('');
+      setDownloading(false);
+      setDownloadSuccess(true);
+      setDownloadEmail('');
+
       setTimeout(() => {
         setDownloadSuccess(false);
       }, 4000);
-    }, 1500);
+
+    } catch (err) {
+      console.error('Failed to start download:', err);
+      setErrorMsg('An error occurred while preparing the download. Please try again.');
+      setDownloading(false);
+    }
   };
 
   return (
@@ -130,6 +155,16 @@ const Resources = () => {
             </form>
 
             <AnimatePresence>
+              {errorMsg && (
+                <motion.p 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-xs text-red-400 font-body font-semibold mt-2 flex items-center justify-center gap-1.5"
+                >
+                  <AlertCircle className="h-3.5 w-3.5" /> {errorMsg}
+                </motion.p>
+              )}
               {downloadSuccess && (
                 <motion.p 
                   initial={{ opacity: 0 }}

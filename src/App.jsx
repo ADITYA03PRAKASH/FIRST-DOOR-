@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import MainLayout from './layouts/MainLayout';
@@ -8,6 +8,7 @@ import Services from './pages/Services';
 import Industries from './pages/Industries';
 import Resources from './pages/Resources';
 import Contact from './pages/Contact';
+import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
 
 const App = () => {
@@ -22,6 +23,7 @@ const App = () => {
             <Route path="/industries" element={<Industries />} />
             <Route path="/resources" element={<Resources />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </MainLayout>
