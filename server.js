@@ -6,6 +6,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import multer from 'multer';
+import { createClient } from '@supabase/supabase-js';
+import { v2 as cloudinary } from 'cloudinary';
 
 // Load environment variables
 dotenv.config();
@@ -16,22 +18,14 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Ensure uploads directory exists
+// Ensure uploads directory exists for local fallback
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Multer configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
-  }
-});
+// Multer memory storage configuration (crucial for serverless environments)
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage: storage,
@@ -44,8 +38,192 @@ const upload = multer({
   }
 });
 
-// Metadata config file path
+// Metadata config file path for local fallback
 const metadataPath = path.join(uploadsDir, 'metadata.json');
+
+// Cloud Storage Manager definition
+class CloudStorageManager {
+  constructor() {
+    this.useSupabase = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
+    this.useCloudinary = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
+
+    if (this.useSupabase) {
+      console.log('Active storage driver: Supabase Storage');
+      this.supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+      this.bucketName = process.env.SUPABASE_BUCKET || 'brochures';
+    } else if (this.useCloudinary) {
+      console.log('Active storage driver: Cloudinary');
+      cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+      });
+    } else {
+      console.log('Active storage driver: Local File System (Development Only - will not persist on Netlify)');
+    }
+  }
+
+  async uploadBrochure(fileBuffer, originalName) {
+    if (this.useSupabase) {
+      // 1. Upload brochure PDF to Supabase Storage
+      const { data, error } = await this.supabase.storage
+        .from(this.bucketName)
+        .upload('brochure.pdf', fileBuffer, {
+          contentType: 'application/pdf',
+          upsert: true
+        });
+
+      if (error) throw error;
+
+      // 2. Upload metadata.json to Supabase Storage
+      const metadata = {
+        originalName,
+        uploadDate: new Date().toISOString()
+      };
+      const metadataBuffer = Buffer.from(JSON.stringify(metadata, null, 2));
+
+      const { error: metaError } = await this.supabase.storage
+        .from(this.bucketName)
+        .upload('metadata.json', metadataBuffer, {
+          contentType: 'application/json',
+          upsert: true
+        });
+
+      if (metaError) throw metaError;
+
+      return {
+        url: '/api/brochure/download',
+        filename: originalName
+      };
+
+    } else if (this.useCloudinary) {
+      // 1. Upload raw brochure PDF to Cloudinary
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: 'raw',
+            public_id: 'first_door_brochure',
+            overwrite: true,
+            format: 'pdf'
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(fileBuffer);
+      });
+
+      // 2. Upload metadata JSON as raw to Cloudinary
+      const metadata = {
+        originalName,
+        uploadDate: new Date().toISOString(),
+        url: uploadResult.secure_url
+      };
+      const metadataBuffer = Buffer.from(JSON.stringify(metadata, null, 2));
+
+      await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: 'raw',
+            public_id: 'first_door_brochure_metadata',
+            overwrite: true,
+            format: 'json'
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(metadataBuffer);
+      });
+
+      return {
+        url: '/api/brochure/download',
+        filename: originalName
+      };
+
+    } else {
+      // Fallback to local file system
+      const filename = `${Date.now()}-${originalName}`;
+      const filePath = path.join(uploadsDir, filename);
+      fs.writeFileSync(filePath, fileBuffer);
+
+      const metadata = {
+        originalName,
+        filename,
+        filePath,
+        uploadDate: new Date().toISOString()
+      };
+      fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), 'utf8');
+
+      return {
+        url: '/api/brochure/download',
+        filename: originalName
+      };
+    }
+  }
+
+  async getBrochureMetadata() {
+    try {
+      if (this.useSupabase) {
+        const { data: urlData } = this.supabase.storage
+          .from(this.bucketName)
+          .getPublicUrl('metadata.json');
+
+        const response = await fetch(urlData.publicUrl);
+        if (!response.ok) {
+          return null;
+        }
+        return await response.json();
+
+      } else if (this.useCloudinary) {
+        const publicUrl = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/first_door_brochure_metadata.json`;
+        const response = await fetch(publicUrl);
+        if (!response.ok) {
+          return null;
+        }
+        return await response.json();
+
+      } else {
+        if (!fs.existsSync(metadataPath)) return null;
+        return JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+      }
+    } catch (e) {
+      console.warn('Metadata not found or storage not accessible:', e.message);
+      return null;
+    }
+  }
+
+  async getBrochureFileStream() {
+    if (this.useSupabase) {
+      const { data: urlData } = this.supabase.storage
+        .from(this.bucketName)
+        .getPublicUrl('brochure.pdf');
+
+      const response = await fetch(urlData.publicUrl);
+      if (!response.ok) return null;
+      const arrayBuffer = await response.arrayBuffer();
+      return Buffer.from(arrayBuffer);
+
+    } else if (this.useCloudinary) {
+      const publicUrl = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/first_door_brochure.pdf`;
+      const response = await fetch(publicUrl);
+      if (!response.ok) return null;
+      const arrayBuffer = await response.arrayBuffer();
+      return Buffer.from(arrayBuffer);
+
+    } else {
+      if (!fs.existsSync(metadataPath)) return null;
+      const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+      const filePath = path.resolve(metadata.filePath);
+      if (!fs.existsSync(filePath)) return null;
+      return fs.readFileSync(filePath);
+    }
+  }
+}
+
+const storageManager = new CloudStorageManager();
 
 // Enable CORS for development
 app.use(cors({
@@ -231,12 +409,12 @@ app.post('/api/book', async (req, res) => {
 });
 
 // Get active brochure URL & metadata
-app.get('/api/brochure/url', (req, res) => {
+app.get('/api/brochure/url', async (req, res) => {
   try {
-    if (!fs.existsSync(metadataPath)) {
+    const metadata = await storageManager.getBrochureMetadata();
+    if (!metadata) {
       return res.status(200).json({ url: '', filename: '' });
     }
-    const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
     return res.status(200).json({
       url: '/api/brochure/download',
       filename: metadata.originalName || 'First_Door_HR_Corporate_Profile.pdf'
@@ -248,21 +426,21 @@ app.get('/api/brochure/url', (req, res) => {
 });
 
 // Download active brochure
-app.get('/api/brochure/download', (req, res) => {
+app.get('/api/brochure/download', async (req, res) => {
   try {
-    if (!fs.existsSync(metadataPath)) {
+    const metadata = await storageManager.getBrochureMetadata();
+    if (!metadata) {
       return res.status(404).json({ error: 'No brochure has been uploaded yet.' });
     }
-    const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
-    const filePath = path.resolve(metadata.filePath);
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'The brochure file could not be found on the server.' });
+    const fileBuffer = await storageManager.getBrochureFileStream();
+    if (!fileBuffer) {
+      return res.status(404).json({ error: 'The brochure file could not be found on the storage server.' });
     }
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${metadata.originalName || 'brochure.pdf'}"`);
-    return res.sendFile(filePath);
+    return res.send(fileBuffer);
   } catch (error) {
     console.error('Error downloading brochure:', error);
     return res.status(500).json({ error: 'Failed to download brochure file.' });
@@ -270,26 +448,19 @@ app.get('/api/brochure/download', (req, res) => {
 });
 
 // Admin upload brochure
-app.post('/api/admin/upload-brochure', upload.single('brochure'), (req, res) => {
+app.post('/api/admin/upload-brochure', upload.single('brochure'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No PDF file was uploaded.' });
     }
 
-    const metadata = {
-      originalName: req.file.originalname,
-      filename: req.file.filename,
-      filePath: req.file.path,
-      uploadDate: new Date().toISOString()
-    };
-
-    fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2), 'utf8');
+    const result = await storageManager.uploadBrochure(req.file.buffer, req.file.originalname);
 
     return res.status(200).json({
       success: true,
-      message: 'Brochure uploaded successfully.',
-      url: '/api/brochure/download',
-      filename: req.file.originalname
+      message: 'Brochure uploaded successfully to cloud persistent storage.',
+      url: result.url,
+      filename: result.filename
     });
   } catch (error) {
     console.error('Error uploading brochure:', error);
