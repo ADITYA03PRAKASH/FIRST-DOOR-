@@ -14,12 +14,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Ensure uploads directory exists for local fallback
-const uploadsDir = path.join(process.cwd(), 'uploads');
-if (!process.env.VERCEL && !process.env.NETLIFY) {
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-  }
+// Ensure uploads directory exists for local fallback (use /tmp on serverless environments to prevent EROFS)
+const uploadsDir = (process.env.VERCEL || process.env.NETLIFY)
+  ? path.join('/tmp', 'uploads')
+  : path.join(process.cwd(), 'uploads');
+
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
 // Multer memory storage configuration (crucial for serverless environments)
@@ -235,9 +236,23 @@ class CloudStorageManager {
 
 const storageManager = new CloudStorageManager();
 
-// Enable CORS for development
+// Enable CORS for development and production domains (including Vercel previews)
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, or same-origin)
+    // or if origin is in the allowed list or is a Vercel preview domain
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
@@ -275,9 +290,6 @@ app.post('/api/book', async (req, res) => {
         rejectUnauthorized: false
       }
     });
-
-    // Verify SMTP connection
-    await transporter.verify();
 
     // 3. Admin Email HTML Content
     const adminHtml = `
@@ -332,15 +344,7 @@ app.post('/api/book', async (req, res) => {
       </html>
     `;
 
-    // 4. Send Admin Email
-    await transporter.sendMail({
-      from: process.env.MAIL_FROM || '"First Door Booking" <noreply@firstdoorhr.com>',
-      to: process.env.BOOKING_RECEIVER_EMAIL,
-      subject: 'New Consultant Booking Request',
-      html: adminHtml,
-    });
-
-    // 5. Customer Confirmation Email HTML Content
+    // 4. Customer Confirmation Email HTML Content
     const customerHtml = `
       <!DOCTYPE html>
       <html>
@@ -394,13 +398,21 @@ app.post('/api/book', async (req, res) => {
       </html>
     `;
 
-    // 6. Send Customer Confirmation Email
-    await transporter.sendMail({
-      from: process.env.MAIL_FROM || '"First Door HR Solutions" <letsconnect@firstdoorhr.com>',
-      to: email,
-      subject: "Thank You for Booking a Consultation",
-      html: customerHtml,
-    });
+    // 5. Send both emails in parallel to optimize execution time in serverless environments
+    await Promise.all([
+      transporter.sendMail({
+        from: process.env.MAIL_FROM || '"First Door Booking" <noreply@firstdoorhr.com>',
+        to: process.env.BOOKING_RECEIVER_EMAIL,
+        subject: 'New Consultant Booking Request',
+        html: adminHtml,
+      }),
+      transporter.sendMail({
+        from: process.env.MAIL_FROM || '"First Door HR Solutions" <letsconnect@firstdoorhr.com>',
+        to: email,
+        subject: "Thank You for Booking a Consultation",
+        html: customerHtml,
+      })
+    ]);
 
     // 7. Success Return
     return res.status(200).json({ success: true, message: 'Consultation request submitted successfully. Emails sent.' });
@@ -463,9 +475,6 @@ app.get('/api/brochure/download', async (req, res) => {
         }
       });
 
-      // Verify SMTP connection
-      await transporter.verify();
-
       // 1. Visitor Thank-You Email HTML Content
       const visitorHtml = `
         <!DOCTYPE html>
@@ -502,14 +511,6 @@ app.get('/api/brochure/download', async (req, res) => {
         </body>
         </html>
       `;
-
-      // Send thank you email to visitor
-      await transporter.sendMail({
-        from: process.env.MAIL_FROM || '"First Door HR Solutions" <letsconnect@firstdoorhr.com>',
-        to: email,
-        subject: 'Thank You for Downloading Our Brochure',
-        html: visitorHtml,
-      });
 
       // 2. Admin Notification Email HTML Content
       const adminHtml = `
@@ -556,13 +557,21 @@ app.get('/api/brochure/download', async (req, res) => {
         </html>
       `;
 
-      // Send admin notification
-      await transporter.sendMail({
-        from: process.env.MAIL_FROM || '"First Door Brochure Alert" <letsconnect@firstdoorhr.com>',
-        to: process.env.BOOKING_RECEIVER_EMAIL,
-        subject: 'New Brochure Download Notification',
-        html: adminHtml,
-      });
+      // Send both emails in parallel to optimize execution time in serverless environments
+      await Promise.all([
+        transporter.sendMail({
+          from: process.env.MAIL_FROM || '"First Door HR Solutions" <letsconnect@firstdoorhr.com>',
+          to: email,
+          subject: 'Thank You for Downloading Our Brochure',
+          html: visitorHtml,
+        }),
+        transporter.sendMail({
+          from: process.env.MAIL_FROM || '"First Door Brochure Alert" <letsconnect@firstdoorhr.com>',
+          to: process.env.BOOKING_RECEIVER_EMAIL,
+          subject: 'New Brochure Download Notification',
+          html: adminHtml,
+        })
+      ]);
     }
 
     res.setHeader('Content-Type', 'application/pdf');
@@ -595,16 +604,16 @@ app.post('/api/admin/upload-brochure', upload.single('brochure'), async (req, re
   }
 });
 
-// Serve frontend build in production
-if (process.env.NODE_ENV === 'production') {
+// Serve frontend build in production (disabled on serverless environments where static files are served directly from the CDN)
+if (process.env.NODE_ENV === 'production' && !process.env.VERCEL && !process.env.NETLIFY) {
   app.use(express.static(path.join(process.cwd(), 'dist')));
   app.get('*any', (req, res) => {
     res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
   });
 } else {
-  // Simple check route in dev
+  // Simple check route in dev/serverless
   app.get('/', (req, res) => {
-    res.send('First Door HR Solutions API is running in development mode.');
+    res.send('First Door HR Solutions API is running.');
   });
 }
 export default app;
