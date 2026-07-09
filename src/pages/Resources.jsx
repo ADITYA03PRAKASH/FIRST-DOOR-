@@ -8,7 +8,9 @@ import Button from '../components/Button';
 import SectionTitle from '../components/SectionTitle';
 
 const Resources = () => {
+  const [downloadName, setDownloadName] = useState('');
   const [downloadEmail, setDownloadEmail] = useState('');
+  const [downloadPhone, setDownloadPhone] = useState('');
   const [downloading, setDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [brochureInfo, setBrochureInfo] = useState({ url: '', filename: '' });
@@ -32,7 +34,7 @@ const Resources = () => {
 
   const handleDownload = async (e) => {
     e.preventDefault();
-    if (!downloadEmail) return;
+    if (!downloadName || !downloadEmail || !downloadPhone) return;
     setErrorMsg('');
     setDownloadSuccess(false);
 
@@ -45,9 +47,10 @@ const Resources = () => {
     setDownloading(true);
 
     try {
-      // Trigger native download using the URL from API
+      // Trigger native download using the URL from API with query params for email tracking
       const element = document.createElement('a');
-      element.setAttribute('href', brochureInfo.url);
+      const downloadUrl = `${brochureInfo.url}?name=${encodeURIComponent(downloadName)}&email=${encodeURIComponent(downloadEmail)}&phone=${encodeURIComponent(downloadPhone)}`;
+      element.setAttribute('href', downloadUrl);
       element.setAttribute('download', brochureInfo.filename || 'First_Door_HR_Corporate_Profile.pdf');
       element.style.display = 'none';
       document.body.appendChild(element);
@@ -56,7 +59,9 @@ const Resources = () => {
 
       setDownloading(false);
       setDownloadSuccess(true);
+      setDownloadName('');
       setDownloadEmail('');
+      setDownloadPhone('');
 
       setTimeout(() => {
         setDownloadSuccess(false);
@@ -124,23 +129,45 @@ const Resources = () => {
               Request our complete corporate capability presentation containing detailed case reviews, pricing cards, and team profiles.
             </p>
 
-            <form onSubmit={handleDownload} className="flex flex-col sm:flex-row gap-3 pt-2 max-w-md mx-auto">
-              <input 
-                type="email"
-                required
-                value={downloadEmail}
-                onChange={(e) => setDownloadEmail(e.target.value)}
-                placeholder="Business Email Address"
-                disabled={downloading || downloadSuccess}
-                className="flex-grow bg-white/5 border border-white/10 rounded-[4px] py-3.5 px-4 font-body text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-gold focus:bg-white/8 transition-all duration-200 disabled:opacity-50"
-                aria-label="Corporate Email input"
-              />
+            <form onSubmit={handleDownload} className="flex flex-col gap-4 pt-2 max-w-md mx-auto text-left">
+              <div className="flex flex-col gap-3">
+                <input 
+                  type="text"
+                  required
+                  value={downloadName}
+                  onChange={(e) => setDownloadName(e.target.value)}
+                  placeholder="Full Name"
+                  disabled={downloading || downloadSuccess}
+                  className="bg-white/5 border border-white/10 rounded-[4px] py-3.5 px-4 font-body text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-gold focus:bg-white/8 transition-all duration-200 disabled:opacity-50 w-full"
+                  aria-label="Full Name input"
+                />
+                <input 
+                  type="email"
+                  required
+                  value={downloadEmail}
+                  onChange={(e) => setDownloadEmail(e.target.value)}
+                  placeholder="Business Email Address"
+                  disabled={downloading || downloadSuccess}
+                  className="bg-white/5 border border-white/10 rounded-[4px] py-3.5 px-4 font-body text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-gold focus:bg-white/8 transition-all duration-200 disabled:opacity-50 w-full"
+                  aria-label="Corporate Email input"
+                />
+                <input 
+                  type="tel"
+                  required
+                  value={downloadPhone}
+                  onChange={(e) => setDownloadPhone(e.target.value)}
+                  placeholder="Phone Number"
+                  disabled={downloading || downloadSuccess}
+                  className="bg-white/5 border border-white/10 rounded-[4px] py-3.5 px-4 font-body text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-gold focus:bg-white/8 transition-all duration-200 disabled:opacity-50 w-full"
+                  aria-label="Phone Number input"
+                />
+              </div>
               
               <Button 
                 type="submit" 
                 variant="gold" 
                 disabled={downloading || downloadSuccess}
-                className="py-3.5 px-8 flex items-center justify-center gap-2 whitespace-nowrap"
+                className="py-3.5 px-8 flex items-center justify-center gap-2 whitespace-nowrap w-full"
               >
                 {downloading ? (
                   "Preparing..."

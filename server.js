@@ -362,27 +362,21 @@ app.post('/api/book', async (req, res) => {
             <h1>First Door HR Solutions</h1>
           </div>
           <div class="content">
-            <div class="greeting">Dear ${name},</div>
-            <p class="thank-you">Thank you for booking a consultation with First Door HR Solutions. We have successfully received your request, and a senior representative will connect with you shortly to discuss your custom talent requirements.</p>
+            <div class="greeting">Hello ${name},</div>
+            <p class="thank-you">Thank you for booking a consultation with us.</p>
+            <p class="thank-you">We have received your request successfully.</p>
+            <p class="thank-you">Our team will review your requirements and contact you shortly.</p>
+            <p class="thank-you">Thank you for choosing us.</p>
             
             <div class="summary-title">Your Booking Details</div>
-            <ul class="detail-list">
-              <li><strong>Service Selected:</strong> ${service}</li>
-              <li><strong>Preferred Date:</strong> ${date}</li>
-              <li><strong>Preferred Time:</strong> ${time}</li>
-              <li><strong>Company:</strong> ${company || 'Not Provided'}</li>
-            </ul>
-            
-            <div class="next-steps">
-              <strong>What's Next?</strong><br>
-              A consultant will review your challenges and touch base with you via phone or email within 24 business hours to lock in the final calendar invite.
-            </div>
+            <table class="detail-table">
+              <tr><th>Service Selected</th><td><strong>${service}</strong></td></tr>
+              <tr><th>Preferred Date</th><td>${date}</td></tr>
+              <tr><th>Preferred Time</th><td>${time}</td></tr>
+              <tr><th>Company</th><td>${company || 'Not Provided'}</td></tr>
+            </table>
 
-            <div class="contact-info">
-              <strong>Have questions in the meantime?</strong><br>
-              Email us at: <a href="mailto:letsconnect@firstdoorhr.com">letsconnect@firstdoorhr.com</a><br>
-              Call us at: <a href="tel:+919911692679">+91 9911692679</a>
-            </div>
+            <p class="thank-you">Regards,<br>Team</p>
           </div>
           <div class="footer">
             <p>&copy; ${new Date().getFullYear()} First Door HR Solutions. All rights reserved.</p>
@@ -394,9 +388,9 @@ app.post('/api/book', async (req, res) => {
 
     // 6. Send Customer Confirmation Email
     await transporter.sendMail({
-      from: process.env.MAIL_FROM || '"First Door HR Solutions" <noreply@firstdoorhr.com>',
+      from: process.env.MAIL_FROM || '"First Door HR Solutions" <letsconnect@firstdoorhr.com>',
       to: email,
-      subject: "We've Received Your Consultation Request",
+      subject: "Thank You for Booking a Consultation",
       html: customerHtml,
     });
 
@@ -440,12 +434,135 @@ app.get('/api/brochure/download', async (req, res) => {
       return res.status(404).json({ error: 'The brochure file could not be found on the storage server.' });
     }
 
+    // Extract query parameters for email notification
+    const { name, email, phone } = req.query;
+
+    if (email) {
+      const downloadTime = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }) + ' (IST)';
+      const userIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
+
+      // Configure Nodemailer Transporter
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT) || 587,
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+        tls: {
+          rejectUnauthorized: false
+        }
+      });
+
+      // Verify SMTP connection
+      await transporter.verify();
+
+      // 1. Visitor Thank-You Email HTML Content
+      const visitorHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #F8F9FB; margin: 0; padding: 20px; color: #1F2937; }
+            .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(15, 43, 91, 0.05); border-top: 5px solid #C6922E; }
+            .header { background-color: #0F2B5B; padding: 30px; text-align: center; }
+            .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 1px; }
+            .content { padding: 40px 30px; line-height: 1.6; }
+            .greeting { font-size: 18px; font-weight: bold; color: #0F2B5B; margin-bottom: 15px; }
+            .thank-you { font-size: 15px; color: #4B5563; margin-bottom: 25px; }
+            .footer { background-color: #081735; color: #9CA3AF; padding: 20px; text-align: center; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>First Door HR Solutions</h1>
+            </div>
+            <div class="content">
+              <div class="greeting">Hello ${name || 'Valued Visitor'},</div>
+              <p class="thank-you">Thank you for downloading our brochure.</p>
+              <p class="thank-you">We hope it helps you understand our solutions better.</p>
+              <p class="thank-you">If you have any questions, feel free to contact us.</p>
+              <p class="thank-you">Regards,<br>Team</p>
+            </div>
+            <div class="footer">
+              <p>&copy; ${new Date().getFullYear()} First Door HR Solutions. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      // Send thank you email to visitor
+      await transporter.sendMail({
+        from: process.env.MAIL_FROM || '"First Door HR Solutions" <letsconnect@firstdoorhr.com>',
+        to: email,
+        subject: 'Thank You for Downloading Our Brochure',
+        html: visitorHtml,
+      });
+
+      // 2. Admin Notification Email HTML Content
+      const adminHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #F8F9FB; margin: 0; padding: 20px; color: #1F2937; }
+            .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(15, 43, 91, 0.05); border-top: 5px solid #C6922E; }
+            .header { background-color: #0F2B5B; padding: 30px; text-align: center; }
+            .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 1px; }
+            .content { padding: 40px 30px; }
+            .section-title { font-size: 18px; font-weight: 700; color: #0F2B5B; margin-bottom: 20px; border-bottom: 2px solid #F8F9FB; padding-bottom: 10px; }
+            .detail-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+            .detail-table th { text-align: left; padding: 12px 10px; background-color: #F8F9FB; color: #0F2B5B; font-weight: 600; font-size: 14px; border-bottom: 1px solid #E5E7EB; width: 35%; }
+            .detail-table td { padding: 12px 10px; color: #4B5563; font-size: 14px; border-bottom: 1px solid #E5E7EB; }
+            .footer { background-color: #081735; color: #9CA3AF; padding: 20px; text-align: center; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>First Door HR Solutions</h1>
+            </div>
+            <div class="content">
+              <div class="section-title">New Brochure Download Notification</div>
+              <p>A visitor has downloaded a brochure. Details below:</p>
+              <table class="detail-table">
+                <tr><th>Name</th><td>${name}</td></tr>
+                <tr><th>Email Address</th><td><a href="mailto:${email}">${email}</a></td></tr>
+                <tr><th>Phone Number</th><td><a href="tel:${phone}">${phone}</a></td></tr>
+                <tr><th>Brochure Name</th><td>${metadata.originalName || 'First_Door_HR_Corporate_Profile.pdf'}</td></tr>
+                <tr><th>Feature/Page Name</th><td>Resources</td></tr>
+                <tr><th>Download Time</th><td>${downloadTime}</td></tr>
+                <tr><th>IP Address</th><td>${userIp}</td></tr>
+              </table>
+            </div>
+            <div class="footer">
+              <p>&copy; ${new Date().getFullYear()} First Door HR Solutions. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      // Send admin notification
+      await transporter.sendMail({
+        from: process.env.MAIL_FROM || '"First Door Brochure Alert" <letsconnect@firstdoorhr.com>',
+        to: process.env.BOOKING_RECEIVER_EMAIL,
+        subject: 'New Brochure Download Notification',
+        html: adminHtml,
+      });
+    }
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${metadata.originalName || 'brochure.pdf'}"`);
     return res.send(fileBuffer);
   } catch (error) {
     console.error('Error downloading brochure:', error);
-    return res.status(500).json({ error: 'Failed to download brochure file.' });
+    return res.status(500).json({ error: error.message || 'Failed to download brochure file.' });
   }
 });
 
@@ -473,7 +590,7 @@ app.post('/api/admin/upload-brochure', upload.single('brochure'), async (req, re
 // Serve frontend build in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'dist')));
-  app.get('*', (req, res) => {
+  app.get('*any', (req, res) => {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
   });
 } else {
