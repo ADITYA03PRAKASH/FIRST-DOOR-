@@ -46,8 +46,20 @@ const metadataPath = path.join(uploadsDir, 'metadata.json');
 // Cloud Storage Manager definition
 class CloudStorageManager {
   constructor() {
-    this.useSupabase = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
-    this.useCloudinary = !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
+    this.useSupabase = !!(
+      process.env.SUPABASE_URL && 
+      process.env.SUPABASE_URL.startsWith('http') && 
+      !process.env.SUPABASE_URL.includes('your_supabase_url') && 
+      process.env.SUPABASE_ANON_KEY &&
+      !process.env.SUPABASE_ANON_KEY.includes('your_supabase_anon_key')
+    );
+    this.useCloudinary = !!(
+      process.env.CLOUDINARY_CLOUD_NAME && 
+      !process.env.CLOUDINARY_CLOUD_NAME.includes('your_cloudinary') && 
+      process.env.CLOUDINARY_API_KEY && 
+      !process.env.CLOUDINARY_API_KEY.includes('your_cloudinary') &&
+      process.env.CLOUDINARY_API_SECRET
+    );
 
     if (this.useSupabase) {
       console.log('Active storage driver: Supabase Storage');
