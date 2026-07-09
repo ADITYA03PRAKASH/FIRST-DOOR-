@@ -480,7 +480,11 @@ if (process.env.NODE_ENV === 'production') {
     res.send('First Door HR Solutions API is running in development mode.');
   });
 }
+export default app;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+if (!process.env.VERCEL && !process.env.NETLIFY) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
