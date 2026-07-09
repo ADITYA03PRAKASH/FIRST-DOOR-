@@ -20,8 +20,10 @@ const PORT = process.env.PORT || 5000;
 
 // Ensure uploads directory exists for local fallback
 const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+if (!process.env.VERCEL && !process.env.NETLIFY) {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
 }
 
 // Multer memory storage configuration (crucial for serverless environments)
