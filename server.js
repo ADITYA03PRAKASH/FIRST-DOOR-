@@ -14,14 +14,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Ensure uploads directory exists for local fallback (use /tmp on serverless environments to prevent EROFS)
-const uploadsDir = (process.env.VERCEL || process.env.NETLIFY)
-  ? path.join('/tmp', 'uploads')
-  : path.join(process.cwd(), 'uploads');
-
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+// Local fallback directory logic moved inside the CloudStorageManager class to prevent startup crashes in read-only filesystems.
 
 // Multer memory storage configuration (crucial for serverless environments)
 const storage = multer.memoryStorage();
@@ -37,8 +30,7 @@ const upload = multer({
   }
 });
 
-// Metadata config file path for local fallback
-const metadataPath = path.join(uploadsDir, 'metadata.json');
+// Metadata config path is resolved dynamically in CloudStorageManager.
 
 // Cloud Storage Manager definition
 class CloudStorageManager {
@@ -72,6 +64,16 @@ class CloudStorageManager {
     } else {
       console.log('Active storage driver: Local File System (Development Only - will not persist on Netlify)');
     }
+  }
+
+  getUploadsDir() {
+    return (process.env.VERCEL || process.env.NETLIFY)
+      ? '/tmp/uploads'
+      : path.resolve('uploads');
+  }
+
+  getMetadataPath() {
+    return path.join(this.getUploadsDir(), 'metadata.json');
   }
 
   async uploadBrochure(fileBuffer, originalName) {
@@ -156,6 +158,12 @@ class CloudStorageManager {
 
     } else {
       // Fallback to local file system
+      const uploadsDir = this.getUploadsDir();
+      const metadataPath = this.getMetadataPath();
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+
       const filename = `${Date.now()}-${originalName}`;
       const filePath = path.join(uploadsDir, filename);
       fs.writeFileSync(filePath, fileBuffer);
@@ -197,6 +205,7 @@ class CloudStorageManager {
         return await response.json();
 
       } else {
+        const metadataPath = this.getMetadataPath();
         if (!fs.existsSync(metadataPath)) return null;
         return JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
       }
@@ -225,6 +234,7 @@ class CloudStorageManager {
       return Buffer.from(arrayBuffer);
 
     } else {
+      const metadataPath = this.getMetadataPath();
       if (!fs.existsSync(metadataPath)) return null;
       const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
       const filePath = path.resolve(metadata.filePath);
