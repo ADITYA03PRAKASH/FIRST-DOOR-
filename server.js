@@ -3,7 +3,6 @@ import nodemailer from 'nodemailer';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import fs from 'fs';
 import multer from 'multer';
 import { createClient } from '@supabase/supabase-js';
@@ -12,14 +11,11 @@ import { v2 as cloudinary } from 'cloudinary';
 // Load environment variables
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Ensure uploads directory exists for local fallback
-const uploadsDir = path.join(__dirname, 'uploads');
+const uploadsDir = path.join(process.cwd(), 'uploads');
 if (!process.env.VERCEL && !process.env.NETLIFY) {
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
@@ -601,9 +597,9 @@ app.post('/api/admin/upload-brochure', upload.single('brochure'), async (req, re
 
 // Serve frontend build in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'dist')));
+  app.use(express.static(path.join(process.cwd(), 'dist')));
   app.get('*any', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+    res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
   });
 } else {
   // Simple check route in dev
