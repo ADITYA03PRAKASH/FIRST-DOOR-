@@ -11,6 +11,8 @@ import { v2 as cloudinary } from 'cloudinary';
 // Load environment variables
 dotenv.config();
 
+console.log("SERVER VERSION 2026-07-10 BUILD 3");
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -272,6 +274,7 @@ const uniqueAllowedOrigins = Array.from(
 );
 
 app.use(cors((req, callback) => {
+  console.log("CUSTOM CORS MIDDLEWARE EXECUTED");
   const origin = req.headers.origin;
   const host = req.headers.host;
   const referer = req.headers.referer;
