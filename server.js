@@ -276,9 +276,10 @@ app.use(cors((req, callback) => {
   const host = req.headers.host;
   const referer = req.headers.referer;
 
-  console.log("Origin:", origin);
-  console.log("Host:", host);
-  console.log("Referer:", referer);
+  console.log("CORS Verification - Origin:", origin);
+  console.log("CORS Verification - Host:", host);
+  console.log("CORS Verification - Referer:", referer);
+  console.log("CORS Verification - Allowed Origins:", uniqueAllowedOrigins);
 
   // Allow requests with no origin (like mobile apps, curl, or same-origin)
   // Also allow 'null' origin which happens during browser cross-origin redirects
@@ -288,15 +289,30 @@ app.use(cors((req, callback) => {
   }
 
   const normalizedOrigin = origin.trim().toLowerCase().replace(/\/$/, '');
+  console.log("CORS Verification - Normalized Origin:", normalizedOrigin);
+
   const isAllowed = uniqueAllowedOrigins.includes(normalizedOrigin) || normalizedOrigin.endsWith('.vercel.app');
 
   if (isAllowed) {
     callback(null, { origin: true });
   } else {
     console.error(`CORS Blocked: Origin "${origin}" is not allowed. Unique Allowed Origins:`, uniqueAllowedOrigins);
-    callback(new Error(`Not allowed by CORS: Origin "${origin}" is not in the allowed list.`));
+    // Attach error message to req object and allow CORS so the browser can read the JSON error
+    req.corsError = `Not allowed by CORS: Origin "${origin}" is not in the allowed list.`;
+    callback(null, { origin: true });
   }
 }));
+
+// Middleware to intercept CORS validation errors and return structured JSON
+app.use((req, res, next) => {
+  if (req.corsError) {
+    return res.status(403).json({
+      success: false,
+      error: req.corsError
+    });
+  }
+  next();
+});
 
 app.use(express.json());
 
@@ -326,10 +342,41 @@ function createMailTransporter() {
 
 // API route for booking
 app.post('/api/book', async (req, res) => {
-  // Add detailed logging
-  console.log("Origin:", req.headers.origin);
-  console.log("Host:", req.headers.host);
-  console.log("Body:", req.body);
+  const origin = req.headers.origin;
+  const host = req.headers.host;
+  const referer = req.headers.referer;
+
+  // Add complete runtime logging
+  console.log("Booking Request - Origin:", origin);
+  console.log("Booking Request - Host:", host);
+  console.log("Booking Request - Referer:", referer);
+  console.log("Booking Request - Request Body:", req.body);
+  console.log("Booking Request - Allowed Origins:", uniqueAllowedOrigins);
+
+  const normalizedOrigin = origin ? origin.trim().toLowerCase().replace(/\/$/, '') : 'None';
+  console.log("Booking Request - Normalized Origin:", normalizedOrigin);
+
+  // Verify all SMTP variables exist
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = process.env.SMTP_PORT;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const bookingReceiver = process.env.BOOKING_RECEIVER_EMAIL;
+
+  console.log("Verifying Environment Variables:");
+  console.log("- SMTP_HOST exists:", !!smtpHost);
+  console.log("- SMTP_PORT exists:", !!smtpPort);
+  console.log("- SMTP_USER exists:", !!smtpUser);
+  console.log("- SMTP_PASS exists:", !!smtpPass);
+  console.log("- BOOKING_RECEIVER_EMAIL exists:", !!bookingReceiver);
+
+  if (!smtpHost || !smtpPort || !smtpUser || !smtpPass || !bookingReceiver) {
+    console.error("Missing environment variables: SMTP credentials or receiver email is undefined.");
+    return res.status(500).json({
+      success: false,
+      error: "Missing environment variables"
+    });
+  }
 
   try {
     const { name, email, phone, company, service, date, time, message } = req.body || {};
@@ -354,7 +401,7 @@ app.post('/api/book', async (req, res) => {
     // Verify SMTP connection configuration
     try {
       await transporter.verify();
-      console.log('SMTP connection verified successfully in booking request.');
+      console.log('SMTP verification result: Success');
     } catch (verifyError) {
       console.error('SMTP Connection Verification Failed in booking request:', verifyError);
       throw new Error(`SMTP connection verification failed: ${verifyError.message}`);
@@ -485,6 +532,8 @@ app.post('/api/book', async (req, res) => {
         html: customerHtml,
       })
     ]);
+
+    console.log("Email sending result: Success");
 
     // 7. Success Return
     return res.status(200).json({ success: true, message: 'Consultation request submitted successfully. Emails sent.' });
@@ -697,10 +746,14 @@ if (process.env.NODE_ENV === 'production' && !process.env.VERCEL && !process.env
 // Global error handling middleware to ensure all server errors are returned as JSON instead of HTML
 app.use((err, req, res, _next) => {
   console.error(err);
+
   res.status(err.status || 500).json({
     success: false,
-    error: err.message || 'Internal Server Error',
-    stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined
+    error: err.message,
+    stack:
+      process.env.NODE_ENV !== "production"
+        ? err.stack
+        : undefined
   });
 });
 
