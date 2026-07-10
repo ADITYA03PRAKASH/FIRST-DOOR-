@@ -264,29 +264,38 @@ if (process.env.ALLOWED_ORIGINS) {
   allowedOrigins.push(...parsedOrigins);
 }
 
-// Remove duplicates and normalize to lowercase
-const uniqueAllowedOrigins = Array.from(new Set(allowedOrigins.map(o => o.toLowerCase())));
+// Normalize and clean allowed origins: trim, lowercase, remove trailing slash
+const uniqueAllowedOrigins = Array.from(
+  new Set(
+    allowedOrigins.map(o => o.trim().toLowerCase().replace(/\/$/, ''))
+  )
+);
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, or same-origin)
-    // Also allow 'null' origin which happens during browser cross-origin redirects
-    if (!origin || origin === 'null') {
-      callback(null, true);
-      return;
-    }
+app.use(cors((req, callback) => {
+  const origin = req.headers.origin;
+  const host = req.headers.host;
+  const referer = req.headers.referer;
 
-    const normalizedOrigin = origin.toLowerCase();
-    const isAllowed = uniqueAllowedOrigins.includes(normalizedOrigin) || normalizedOrigin.endsWith('.vercel.app');
+  console.log("Origin:", origin);
+  console.log("Host:", host);
+  console.log("Referer:", referer);
 
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.error(`CORS Blocked: Origin "${origin}" is not allowed. Unique Allowed Origins:`, uniqueAllowedOrigins);
-      callback(new Error(`Not allowed by CORS: Origin "${origin}" is not in the allowed list.`));
-    }
-  },
-  credentials: true
+  // Allow requests with no origin (like mobile apps, curl, or same-origin)
+  // Also allow 'null' origin which happens during browser cross-origin redirects
+  if (!origin || origin === 'null') {
+    callback(null, { origin: true });
+    return;
+  }
+
+  const normalizedOrigin = origin.trim().toLowerCase().replace(/\/$/, '');
+  const isAllowed = uniqueAllowedOrigins.includes(normalizedOrigin) || normalizedOrigin.endsWith('.vercel.app');
+
+  if (isAllowed) {
+    callback(null, { origin: true });
+  } else {
+    console.error(`CORS Blocked: Origin "${origin}" is not allowed. Unique Allowed Origins:`, uniqueAllowedOrigins);
+    callback(new Error(`Not allowed by CORS: Origin "${origin}" is not in the allowed list.`));
+  }
 }));
 
 app.use(express.json());
@@ -687,9 +696,8 @@ if (process.env.NODE_ENV === 'production' && !process.env.VERCEL && !process.env
 }
 // Global error handling middleware to ensure all server errors are returned as JSON instead of HTML
 app.use((err, req, res, _next) => {
-  console.error('Unhandled server error:', err);
-  const statusCode = res.statusCode && res.statusCode !== 200 ? res.statusCode : 500;
-  return res.status(statusCode).json({
+  console.error(err);
+  res.status(err.status || 500).json({
     success: false,
     error: err.message || 'Internal Server Error',
     stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined
