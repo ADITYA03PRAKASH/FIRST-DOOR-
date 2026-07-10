@@ -19,8 +19,11 @@ const Admin = () => {
       setFetchingMetadata(true);
       const res = await fetch('/api/brochure/url');
       if (res.ok) {
-        const data = await res.json();
-        setActiveBrochure(data);
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const data = await res.json();
+          setActiveBrochure(data);
+        }
       }
     } catch (err) {
       console.error('Error fetching brochure metadata:', err);
@@ -65,10 +68,18 @@ const Admin = () => {
         body: formData,
       });
 
-      const data = await res.json();
+      let data = {};
+      const contentType = res.headers.get("content-type");
+
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const errorText = await res.text();
+        throw new Error(errorText || `Server returned status ${res.status}`);
+      }
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to upload brochure PDF.');
+        throw new Error(data.error || data.message || 'Failed to upload brochure PDF.');
       }
 
       setUploadSuccess(true);

@@ -82,10 +82,18 @@ const ContactForm = () => {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      let data = {};
+      const contentType = response.headers.get("content-type");
+
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText || `Server returned status ${response.status}`);
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit consultation booking.');
+        throw new Error(data.error || data.message || 'Failed to submit consultation booking.');
       }
 
       setIsLoading(false);

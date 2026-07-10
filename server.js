@@ -270,7 +270,8 @@ const uniqueAllowedOrigins = Array.from(new Set(allowedOrigins.map(o => o.toLowe
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps, curl, or same-origin)
-    if (!origin) {
+    // Also allow 'null' origin which happens during browser cross-origin redirects
+    if (!origin || origin === 'null') {
       callback(null, true);
       return;
     }
@@ -316,23 +317,28 @@ function createMailTransporter() {
 
 // API route for booking
 app.post('/api/book', async (req, res) => {
-  const { name, email, phone, company, service, date, time, message } = req.body;
-
-  // 1. Validation
-  if (!name || !email || !phone || !service || !date || !time) {
-    return res.status(400).json({ error: 'Missing required fields. Please provide name, email, phone, service, date, and time.' });
-  }
-
-  // Basic email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ error: 'Invalid email address format.' });
-  }
-
-  const submissionDate = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }) + ' (IST)';
-  const userIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
+  // Add detailed logging
+  console.log("Origin:", req.headers.origin);
+  console.log("Host:", req.headers.host);
+  console.log("Body:", req.body);
 
   try {
+    const { name, email, phone, company, service, date, time, message } = req.body || {};
+
+    // 1. Validation
+    if (!name || !email || !phone || !service || !date || !time) {
+      return res.status(400).json({ error: 'Missing required fields. Please provide name, email, phone, service, date, and time.' });
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email address format.' });
+    }
+
+    const submissionDate = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }) + ' (IST)';
+    const userIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
+
     // 2. Configure Nodemailer Transporter
     const transporter = createMailTransporter();
 
@@ -478,8 +484,10 @@ app.post('/api/book', async (req, res) => {
     // 8. Log error only on the server
     console.error('Error handling booking request:', error);
     return res.status(500).json({ 
+      success: false,
       error: 'Failed to process consultation request. SMTP transmission error.', 
-      details: error.message 
+      details: error.message,
+      stack: process.env.NODE_ENV !== "production" ? error.stack : undefined
     });
   }
 });
@@ -677,6 +685,17 @@ if (process.env.NODE_ENV === 'production' && !process.env.VERCEL && !process.env
     res.send('First Door HR Solutions API is running.');
   });
 }
+// Global error handling middleware to ensure all server errors are returned as JSON instead of HTML
+app.use((err, req, res, _next) => {
+  console.error('Unhandled server error:', err);
+  const statusCode = res.statusCode && res.statusCode !== 200 ? res.statusCode : 500;
+  return res.status(statusCode).json({
+    success: false,
+    error: err.message || 'Internal Server Error',
+    stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined
+  });
+});
+
 export default app;
 
 if (!process.env.VERCEL && !process.env.NETLIFY) {
