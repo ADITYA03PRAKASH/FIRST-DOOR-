@@ -250,23 +250,69 @@ const storageManager = new CloudStorageManager();
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
-  process.env.FRONTEND_URL
-].filter(Boolean);
+  'https://www.firstdoorhr.com',
+  'https://firstdoorhr.com',
+  'https://firstdoor-rho.vercel.app'
+];
+
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
+if (process.env.ALLOWED_ORIGINS) {
+  const parsedOrigins = process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean);
+  allowedOrigins.push(...parsedOrigins);
+}
+
+// Remove duplicates and normalize to lowercase
+const uniqueAllowedOrigins = Array.from(new Set(allowedOrigins.map(o => o.toLowerCase())));
 
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps, curl, or same-origin)
-    // or if origin is in the allowed list or is a Vercel preview domain
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    const normalizedOrigin = origin.toLowerCase();
+    const isAllowed = uniqueAllowedOrigins.includes(normalizedOrigin) || normalizedOrigin.endsWith('.vercel.app');
+
+    if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.error(`CORS Blocked: Origin "${origin}" is not allowed. Unique Allowed Origins:`, uniqueAllowedOrigins);
+      callback(new Error(`Not allowed by CORS: Origin "${origin}" is not in the allowed list.`));
     }
   },
   credentials: true
 }));
 
 app.use(express.json());
+
+// Helper function to create Nodemailer transporter and verify config
+function createMailTransporter() {
+  const host = process.env.SMTP_HOST;
+  const port = parseInt(process.env.SMTP_PORT) || 587;
+  const secure = process.env.SMTP_SECURE === 'true';
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) {
+    console.error('SMTP Configuration Missing: host, user, or pass environment variable is undefined.');
+    throw new Error('SMTP configuration missing on the server. Please check environment variables.');
+  }
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: { user, pass },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+}
 
 // API route for booking
 app.post('/api/book', async (req, res) => {
@@ -288,18 +334,16 @@ app.post('/api/book', async (req, res) => {
 
   try {
     // 2. Configure Nodemailer Transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
+    const transporter = createMailTransporter();
+
+    // Verify SMTP connection configuration
+    try {
+      await transporter.verify();
+      console.log('SMTP connection verified successfully in booking request.');
+    } catch (verifyError) {
+      console.error('SMTP Connection Verification Failed in booking request:', verifyError);
+      throw new Error(`SMTP connection verification failed: ${verifyError.message}`);
+    }
 
     // 3. Admin Email HTML Content
     const adminHtml = `
@@ -408,16 +452,19 @@ app.post('/api/book', async (req, res) => {
       </html>
     `;
 
+    const mailFromAddress = process.env.SMTP_FROM || process.env.MAIL_FROM || '"First Door Booking" <noreply@firstdoorhr.com>';
+    const customerMailFromAddress = process.env.SMTP_FROM || process.env.MAIL_FROM || '"First Door HR Solutions" <letsconnect@firstdoorhr.com>';
+
     // 5. Send both emails in parallel to optimize execution time in serverless environments
     await Promise.all([
       transporter.sendMail({
-        from: process.env.MAIL_FROM || '"First Door Booking" <noreply@firstdoorhr.com>',
+        from: mailFromAddress,
         to: process.env.BOOKING_RECEIVER_EMAIL,
         subject: 'New Consultant Booking Request',
         html: adminHtml,
       }),
       transporter.sendMail({
-        from: process.env.MAIL_FROM || '"First Door HR Solutions" <letsconnect@firstdoorhr.com>',
+        from: customerMailFromAddress,
         to: email,
         subject: "Thank You for Booking a Consultation",
         html: customerHtml,
@@ -430,7 +477,10 @@ app.post('/api/book', async (req, res) => {
   } catch (error) {
     // 8. Log error only on the server
     console.error('Error handling booking request:', error);
-    return res.status(500).json({ error: 'Failed to process consultation request. SMTP transmission error.' });
+    return res.status(500).json({ 
+      error: 'Failed to process consultation request. SMTP transmission error.', 
+      details: error.message 
+    });
   }
 });
 
@@ -472,18 +522,16 @@ app.get('/api/brochure/download', async (req, res) => {
       const userIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
 
       // Configure Nodemailer Transporter
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT) || 587,
-        secure: process.env.SMTP_SECURE === 'true',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-        tls: {
-          rejectUnauthorized: false
-        }
-      });
+      const transporter = createMailTransporter();
+
+      // Verify SMTP connection configuration
+      try {
+        await transporter.verify();
+        console.log('SMTP connection verified successfully in brochure download.');
+      } catch (verifyError) {
+        console.error('SMTP Connection Verification Failed in brochure download:', verifyError);
+        throw new Error(`SMTP connection verification failed: ${verifyError.message}`);
+      }
 
       // 1. Visitor Thank-You Email HTML Content
       const visitorHtml = `
@@ -567,16 +615,19 @@ app.get('/api/brochure/download', async (req, res) => {
         </html>
       `;
 
+      const visitorMailFromAddress = process.env.SMTP_FROM || process.env.MAIL_FROM || '"First Door HR Solutions" <letsconnect@firstdoorhr.com>';
+      const alertMailFromAddress = process.env.SMTP_FROM || process.env.MAIL_FROM || '"First Door Brochure Alert" <letsconnect@firstdoorhr.com>';
+
       // Send both emails in parallel to optimize execution time in serverless environments
       await Promise.all([
         transporter.sendMail({
-          from: process.env.MAIL_FROM || '"First Door HR Solutions" <letsconnect@firstdoorhr.com>',
+          from: visitorMailFromAddress,
           to: email,
           subject: 'Thank You for Downloading Our Brochure',
           html: visitorHtml,
         }),
         transporter.sendMail({
-          from: process.env.MAIL_FROM || '"First Door Brochure Alert" <letsconnect@firstdoorhr.com>',
+          from: alertMailFromAddress,
           to: process.env.BOOKING_RECEIVER_EMAIL,
           subject: 'New Brochure Download Notification',
           html: adminHtml,
